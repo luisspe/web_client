@@ -1,0 +1,12 @@
+<!-- create_admin.html -->
+
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <h2>Crear Cuenta de Administrador</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Crear Cuenta</button>
+  </form>
+{% endblock %}
