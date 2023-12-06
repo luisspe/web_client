@@ -1,0 +1,62 @@
+{% extends "base_client.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card" style="background-color: #f0f2f5; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);">
+                <div class="card-body">
+                    <h2 class="card-title">Comentarios y Sugerencias</h2>
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="user_experience" class="form-label">¿Cómo fue tu experiencia subiendo tus documentos?</label>
+                            <textarea class="form-control" id="user_experience" name="user_experience" rows="2" placeholder="Describe tu experiencia..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="platform_intuitive" class="form-label">¿La plataforma fue intuitiva?</label>
+                            <select class="form-select" id="platform_intuitive" name="platform_intuitive">
+                                <option value="">Selecciona una opción</option>
+                                <option value="yes">Sí</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="appointment_scheduled" class="form-label">¿Agendaste una cita desde la plataforma?</label>
+                            <div>
+                                <input type="radio" id="appointment_yes" name="appointment_scheduled" value="yes">
+                                <label for="appointment_yes">Sí</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="appointment_no" name="appointment_scheduled" value="no">
+                                <label for="appointment_no">No</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Del 1 al 5, ¿qué calificación le darías a este proceso?</label>
+                            <select class="form-select" id="rating" name="rating">
+                                <option value="">Selecciona una calificación</option>
+                                <option value="1">1 - Más bajo</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5 - Excelente</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="user_comment" class="form-label">Tu Comentario</label>
+                            <textarea class="form-control" id="user_comment" name="user_comment" rows="3" placeholder="Deja aquí tus comentarios o sugerencias..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enviar Comentario</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+

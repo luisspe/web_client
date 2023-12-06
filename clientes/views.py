@@ -112,7 +112,11 @@ def create_admin(request):
 
 @login_required
 def cliente_citas(request):
-    return render(request, 'cliente_citas.html')
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    context = {
+        'notificaciones': notificaciones
+    }
+    return render(request, 'cliente_citas.html', context)
 
 @login_required
 def cliente_dashboard(request):
@@ -162,6 +166,9 @@ def upload_file(request):
 
 @login_required
 def notification_settings(request):
+    # Obtener las notificaciones del usuario
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    
     if request.method == 'POST':
         settings, created = UserNotificationSettings.objects.get_or_create(user=request.user)
         settings.receive_notifications = request.POST.get('receive_notifications') == 'on'
@@ -170,9 +177,11 @@ def notification_settings(request):
         settings.notify_appointment_reminder = request.POST.get('notify_appointment_reminder') == 'on'
         settings.save()
         return redirect('notification_settings')
-
+    context ={
+        'notificaciones': notificaciones,
+    }
     current_settings = UserNotificationSettings.objects.get_or_create(user=request.user)[0]
-    return render(request, 'notification_settings.html', {'settings': current_settings})
+    return render(request, 'notification_settings.html', {'settings': current_settings, 'notificaciones': notificaciones})
 
 
 
@@ -186,3 +195,13 @@ def eliminar_notificacion(request, id_notificacion):
         return JsonResponse({'status': 'success'})
     except Notificacion.DoesNotExist:
         return JsonResponse({'status': 'error'}, status=404)
+    
+
+
+@login_required
+def comentarios_y_sugerencias(request):
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    context = {
+        'notificaciones': notificaciones
+    }
+    return render(request, 'cliente_comentarios.html', context)

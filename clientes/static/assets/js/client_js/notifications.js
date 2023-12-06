@@ -1,5 +1,6 @@
 function eliminarNotificacion(idNotificacion) {
     var csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
 
     fetch('/eliminar-notificacion/' + idNotificacion, {
         method: 'POST',
@@ -10,6 +11,7 @@ function eliminarNotificacion(idNotificacion) {
     .then(response => {
         if (response.ok) {
             document.getElementById('notificacion-' + idNotificacion).remove();
+            window.location.reload();
         } else {
             alert('Error al eliminar la notificación');
         }
@@ -17,4 +19,7 @@ function eliminarNotificacion(idNotificacion) {
     .catch(error => {
         console.error('Error:', error);
     });
+
+    
+    
 }
