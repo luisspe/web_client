@@ -24,6 +24,7 @@ class Documento(models.Model):
         ('CONSTANCIA_FISCAL', 'Constancia fiscal'),
         ('COMPROBANTE_DOMICILIO', 'Comprobante domicilio'),
         ('COMPROBANTE_INGRESOS', 'Comprobante ingresos'),
+        ('CURP', 'curp'),
 
         
         
