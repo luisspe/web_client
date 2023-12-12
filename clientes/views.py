@@ -149,7 +149,7 @@ def create_event_or_client(request, client_info, event_info, headers, api_url):
             if 'client_id' not in event_info:
                 event_info['client_id'] = client_id
             response = requests.post(f"{api_url}events/create/", headers=headers, json=event_info)
-            return client_id, "Evento creado exitosamente" if response.status_code == 201 else "Error al crear el evento"
+            return client_id, "Evento creado exitosamente" if response.status_code == 201 or response.status_code == 200 else "Error al crear el evento"
     event_info['client_id'] = client_id
     response = requests.post(f"{api_url}events/create/", headers=headers, json=event_info)
     return client_id, "Evento creado exitosamente" if response.status_code == 201 else "Error al crear el evento"
@@ -248,11 +248,13 @@ def upload_file(request):
             event_api_url = f"https://lbvj22e1he.execute-api.us-east-1.amazonaws.com/dev/events/create/"
             headers = {'Content-Type': 'application/json', 'x-api-key': 'IUPDlxEc2i2xxCYpmmnGL2JmqhVRkQba1n9Tbl6B'}  # Add any required headers
             response = requests.post(event_api_url, json=event_data, headers=headers)
-            if response.status_code == 200:
+            if response.status_code == 200 or response.status_code == 201:
+                documento.save()
                 return JsonResponse({'status': 'Completado', 'id': documento.id})
+                
             else:
                 return JsonResponse({'status': 'Error', 'message': 'Error al crear el evento.'}, status=response.status_code)
-        documento.save()
+        
         
 
         return JsonResponse({'status': 'Completado', 'id': documento.id})
