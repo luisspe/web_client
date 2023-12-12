@@ -1,38 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-   
+{% extends "base_client.html" %}
+{% load static %}
 
-<h2>Configuración de Notificaciones</h2>
 
-<form method="post">
-    {% csrf_token %}
-    <div>
-        <label for="receive_notifications">Recibir Notificaciones:</label>
-        <input type="checkbox" id="receive_notifications" name="receive_notifications" {% if settings.receive_notifications %}checked{% endif %}>
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row mt-4">
+      <div class="col-lg-12">
+        <div class="card" style="background-color: #f0f2f5; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);"> <!-- Fondo gris con sombreado -->
+          <div class="card-body">
+            <h2 class="card-title">Configuración de Notificaciones</h2>
+            <form method="post" class="mt-4">
+              {% csrf_token %}
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="receive_notifications" name="receive_notifications" {% if settings.receive_notifications %}checked{% endif %}>
+                    <label class="form-check-label" for="receive_notifications">Recibir Notificaciones</label>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="notify_document_status" name="notify_document_status" {% if settings.notify_document_status %}checked{% endif %}>
+                    <label class="form-check-label" for="notify_document_status">Notificaciones de Estado de Documentos</label>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="notify_appointment_confirmation" name="notify_appointment_confirmation" {% if settings.notify_appointment_confirmation %}checked{% endif %}>
+                    <label class="form-check-label" for="notify_appointment_confirmation">Notificaciones de Confirmación de Citas</label>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="notify_appointment_reminder" name="notify_appointment_reminder" {% if settings.notify_appointment_reminder %}checked{% endif %}>
+                    <label class="form-check-label" for="notify_appointment_reminder">Recordatorios de Citas</label>
+                </div>
+              <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+            </form>
+            
+          </div>
+        </div>
+      </div>
     </div>
-    <div>
-        <label for="notify_document_status">Notificaciones de Estado de Documentos:</label>
-        <input type="checkbox" id="notify_document_status" name="notify_document_status" {% if settings.notify_document_status %}checked{% endif %}>
-    </div>
-    <div>
-        <label for="notify_appointment_confirmation">Notificaciones de Confirmación de Citas:</label>
-        <input type="checkbox" id="notify_appointment_confirmation" name="notify_appointment_confirmation" {% if settings.notify_appointment_confirmation %}checked{% endif %}>
-    </div>
-    <div>
-        <label for="notify_appointment_reminder">Recordatorios de Citas:</label>
-        <input type="checkbox" id="notify_appointment_reminder" name="notify_appointment_reminder" {% if settings.notify_appointment_reminder %}checked{% endif %}>
-    </div>
-    <button type="submit">Guardar Configuración</button>
-</form>
-<a href="/v2/cliente_dashboard/">regresar</a>
+</div>
+
+{% endblock %}
 
 
-
-</body>
-</html>

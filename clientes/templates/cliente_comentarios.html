@@ -1,0 +1,205 @@
+{% extends "base_client.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card" style="background-color: #f0f2f5; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);">
+                <div class="card-body">
+                    <h2 class="card-title">Comentarios y Sugerencias</h2>
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="comment_reason" class="form-label">Motivo del Comentario o Sugerencia</label>
+                            <select class="form-select" id="comment_reason" name="comment_reason" onchange="showForm()">
+                                <option value="">Selecciona un motivo</option>
+                                <option value="visita_sucursal">Visita sucursal</option>
+                                <option value="seguimiento_vendedor">Seguimiento con vendedor</option>
+                                <option value="prueba_manejo">Prueba de manejo</option>
+                                <option value="tramite_credito">Tramite de tu credito</option>
+                                <option value="entrega_vehiculo">Entrega de tu vehículo</option>
+                                <option value="facturacion">Facturación</option>
+                            </select>
+                        </div>
+
+                        <!-- Formulario para Visita a Sucursal -->
+                        <div id="form_visita_sucursal" class="form-container" >
+                            <div class="mb-3">
+                                <label for="fecha_visita" class="form-label">Fecha de la visita</label>
+                                <input type="date" class="form-control" id="fecha_visita" name="fecha_visita">
+                            </div>
+                            <div class="mb-3">
+                                <label for="sucursal_visitada" class="form-label">Sucursal visitada</label>
+                                <input type="text" class="form-control" id="sucursal_visitada" name="sucursal_visitada" placeholder="Nombre o ubicación de la sucursal">
+                            </div>
+                            <div class="mb-3">
+                                <label for="atencion_recibida" class="form-label">Califica la atención recibida</label>
+                                <select class="form-select" id="atencion_recibida" name="atencion_recibida">
+                                    <option value="">Selecciona una calificación</option>
+                                    <option value="excelente">Excelente</option>
+                                    <option value="buena">Buena</option>
+                                    <option value="regular">Regular</option>
+                                    <option value="mala">Mala</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comentarios_sucursal" class="form-label">Comentarios adicionales</label>
+                                <textarea class="form-control" id="comentarios_sucursal" name="comentarios_sucursal" rows="3" placeholder="Comparte tus comentarios sobre la visita..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Formulario para Seguimiento con Vendedor -->
+                        <div id="form_seguimiento_vendedor" class="form-container">
+                            <div class="mb-3">
+                                <label for="nombre_vendedor" class="form-label">Nombre del Vendedor</label>
+                                <input type="text" class="form-control" id="nombre_vendedor" name="nombre_vendedor" placeholder="Nombre del vendedor con quien interactuaste">
+                            </div>
+                            <div class="mb-3">
+                                <label for="fecha_interaccion" class="form-label">Fecha de Interacción</label>
+                                <input type="date" class="form-control" id="fecha_interaccion" name="fecha_interaccion">
+                            </div>
+                            <div class="mb-3">
+                                <label for="calificacion_vendedor" class="form-label">Calificación del Vendedor</label>
+                                <select class="form-select" id="calificacion_vendedor" name="calificacion_vendedor">
+                                    <option value="">Selecciona una calificación</option>
+                                    <option value="1">1 - Más bajo</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5 - Excelente</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comentarios_vendedor" class="form-label">Comentarios sobre el Vendedor</label>
+                                <textarea class="form-control" id="comentarios_vendedor" name="comentarios_vendedor" rows="3" placeholder="Describe tu experiencia con el vendedor..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Formulario para Prueba de Manejo -->
+                        <div id="form_prueba_manejo" class="form-container">
+                            <div class="mb-3">
+                                <label for="fecha_prueba" class="form-label">Fecha de la Prueba de Manejo</label>
+                                <input type="date" class="form-control" id="fecha_prueba" name="fecha_prueba">
+                            </div>
+                            <div class="mb-3">
+                                <label for="modelo_vehiculo" class="form-label">Modelo del Vehículo</label>
+                                <input type="text" class="form-control" id="modelo_vehiculo" name="modelo_vehiculo" placeholder="Modelo del vehículo probado">
+                            </div>
+                            <div class="mb-3">
+                                <label for="satisfaccion_vehiculo" class="form-label">Satisfacción con el Vehículo</label>
+                                <select class="form-select" id="satisfaccion_vehiculo" name="satisfaccion_vehiculo">
+                                    <option value="">Selecciona una calificación</option>
+                                    <option value="1">1 - Muy insatisfecho</option>
+                                    <option value="2">2 - Insatisfecho</option>
+                                    <option value="3">3 - Neutral</option>
+                                    <option value="4">4 - Satisfecho</option>
+                                    <option value="5">5 - Muy satisfecho</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comentarios_prueba" class="form-label">Comentarios sobre la Prueba de Manejo</label>
+                                <textarea class="form-control" id="comentarios_prueba" name="comentarios_prueba" rows="3" placeholder="Comparte tus comentarios sobre la prueba de manejo..."></textarea>
+                            </div>
+                        </div>
+                        <!-- Formulario para Trámite de Crédito -->
+                        <div id="form_tramite_credito" class="form-container">
+                            <div class="mb-3">
+                                <label for="fecha_tramite" class="form-label">Fecha del Trámite</label>
+                                <input type="date" class="form-control" id="fecha_tramite" name="fecha_tramite">
+                            </div>
+                            <div class="mb-3">
+                                <label for="tiempo_respuesta" class="form-label">Tiempo de Respuesta</label>
+                                <select class="form-select" id="tiempo_respuesta" name="tiempo_respuesta">
+                                    <option value="">Selecciona una opción</option>
+                                    <option value="inmediato">Inmediato</option>
+                                    <option value="mismo_dia">Mismo día</option>
+                                    <option value="varios_dias">Varios días</option>
+                                    <option value="semanas">Semanas</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="claridad_proceso" class="form-label">Claridad del Proceso</label>
+                                <select class="form-select" id="claridad_proceso" name="claridad_proceso">
+                                    <option value="">Selecciona una calificación</option>
+                                    <option value="1">1 - Muy confuso</option>
+                                    <option value="2">2 - Confuso</option>
+                                    <option value="3">3 - Neutral</option>
+                                    <option value="4">4 - Claro</option>
+                                    <option value="5">5 - Muy claro</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comentarios_credito" class="form-label">Comentarios sobre el Trámite de Crédito</label>
+                                <textarea class="form-control" id="comentarios_credito" name="comentarios_credito" rows="3" placeholder="Comparte tus comentarios sobre el trámite de crédito..."></textarea>
+                            </div>
+                        </div>
+                        <!-- Formulario para Facturación -->
+                        <div id="form_facturacion" class="form-container">
+                            <div class="mb-3">
+                                <label for="fecha_facturacion" class="form-label">Fecha de Facturación</label>
+                                <input type="date" class="form-control" id="fecha_facturacion" name="fecha_facturacion">
+                            </div>
+                            <div class="mb-3">
+                                <label for="facilidad_proceso" class="form-label">Facilidad del Proceso de Facturación</label>
+                                <select class="form-select" id="facilidad_proceso" name="facilidad_proceso">
+                                    <option value="">Selecciona una calificación</option>
+                                    <option value="1">1 - Muy difícil</option>
+                                    <option value="2">2 - Difícil</option>
+                                    <option value="3">3 - Neutral</option>
+                                    <option value="4">4 - Fácil</option>
+                                    <option value="5">5 - Muy fácil</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="rapidez_servicio" class="form-label">Rapidez del Servicio</label>
+                                <select class="form-select" id="rapidez_servicio" name="rapidez_servicio">
+                                    <option value="">Selecciona una opción</option>
+                                    <option value="inmediato">Inmediato</option>
+                                    <option value="mismo_dia">Mismo día</option>
+                                    <option value="varios_dias">Varios días</option>
+                                    <option value="semanas">Semanas</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comentarios_facturacion" class="form-label">Comentarios sobre la Facturación</label>
+                                <textarea class="form-control" id="comentarios_facturacion" name="comentarios_facturacion" rows="3" placeholder="Comparte tus comentarios sobre la facturación..."></textarea>
+                            </div>
+                        </div>
+
+
+                        <button type="submit" class="btn btn-primary">Enviar Comentario</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+/* Estilos para la transición de los formularios */
+.form-container {
+        opacity: 0;
+        transition: opacity 1.5s ease;
+        height: 0;
+        overflow: hidden;
+    }
+    .form-container.active {
+        opacity: 1;
+        height: auto;
+    }
+</style>
+<script>
+function showForm() {
+    var reason = document.getElementById("comment_reason").value;
+    var forms = document.querySelectorAll('.form-container');
+    forms.forEach(function(form) {
+        form.classList.remove('active');
+    });
+    if (reason) {
+        var activeForm = document.getElementById("form_" + reason);
+        activeForm.classList.add('active');
+    }
+}
+</script>
+
+{% endblock %}

@@ -1,13 +1,387 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>
-        CITAS CLIENTE
-    </h1>
-</body>
-</html>
+{% extends "base_client.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .booking-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap; /* Permite que los elementos se ajusten en pantallas más pequeñas */
+        gap: 20px; /* Espacio entre los contenedores */
+        padding: 20px;
+    }
+    .calendar-container {
+        font-family: 'Arial', sans-serif;
+        max-height: 410px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        width: 50%;
+    }
+
+    .calendar{
+        width: 100%;
+    }
+
+    /* Encabezado del calendario */
+    .calendar-header {
+        background-color: #d53249;
+        color: white;
+        padding: 10px 15px;
+        width: 100%;
+        display: flex;
+        justify-content: center; /* Cambiado a 'center' para centrar los elementos horizontalmente */
+        align-items: center;
+    }
+
+    .calendar-button {
+        background: none;
+        border: none;
+        color: black;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    /* Estilos para la cabecera (días de la semana) */
+    .calendar th {
+        background-color: #50a5dc;
+        color: white;
+        padding: 10px;
+        text-align: center;
+    }
+
+    
+
+    .calendar-navigation {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espacio entre los elementos */
+    }
+
+    /* Estilos para los días del calendario */
+    .calendar td {
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Efecto hover para los días */
+    .calendar td:hover:not(.empty) {
+        background-color: #0E2059;
+        color: white;
+    }
+
+    /* Estilos para el día actual y seleccionado */
+    .today {
+        background-color: #abcdef;
+        color: white;
+    }
+
+    .selected {
+        background-color: #d53249;
+        color: white;
+    }
+
+    /* Estilos para celdas vacías (días fuera del mes actual) */
+    .empty {
+        background-color: #f8f9fa;
+        cursor: default;
+    }
+
+    /* Estilos responsivos para pantallas pequeñas */
+    @media (max-width: 768px) {
+        .booking-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .calendar{
+            width: 100%;
+        }
+
+        .calendar-container {
+            width: 100%; /* Los contenedores toman el ancho completo en pantallas pequeñas */
+            margin: 0; /* Eliminar el margen para maximizar el espacio */
+             /* Reducir el padding para ahorrar espacio */
+            box-shadow: none; 
+        }
+        .time-slots-container{
+            width: 100%;
+        }
+
+        
+    
+
+        .calendar-header {
+            flex-direction: column; /* Apilar los elementos de la cabecera verticalmente */
+            align-items: flex-start; /* Alineación al inicio para la flecha y el mes/año */
+        }
+
+        .calendar-button {
+            padding: 5px; /* Reducir el padding de los botones para ahorrar espacio */
+        }
+
+        .month-name, .year {
+            font-size: 15px; /* Reducir el tamaño de fuente para el nombre del mes y el año */
+            margin-bottom: 5px; /* Añadir un pequeño margen entre el mes/año y los botones */
+        }
+
+        .calendar th, .calendar td {
+            padding: 8px; /* Reducir el padding dentro de las celdas del calendario */
+        }
+
+        .time-slot {
+            font-size: 14px; /* Reducir el tamaño de fuente para los slots de tiempo */
+        }
+    }
+
+
+    .time-slots-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Esto crea dos columnas de igual ancho */
+        gap: 10px; /* Espacio entre slots */
+        flex: none; /* Eliminar flex si lo tenías anteriormente */
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        min-width: 335px;
+        width: 40%; /* Puedes ajustar esto según sea necesario */
+    }
+    
+
+    .time-slot {
+        padding: 10px;
+        border: 1px solid #0E2059;
+        border-radius: 5px;
+        text-align: center;
+        cursor: pointer;
+        /* Ajustes opcionales para mejorar la apariencia */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .time-slot:hover, .time-slot.active {
+        background-color: #0E2059;
+        color: white;
+    }
+
+
+    .appointments-container {
+        margin-top: 20px; /* Añade espacio encima del contenedor de citas */
+        background: #fff; /* Fondo blanco para el contenedor */
+        padding: 20px; /* Padding para el espacio interno */
+        border-radius: 10px; /* Bordes redondeados */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera para el contenedor */
+        width: 100%; /* Ocupa el ancho disponible */
+    }
+
+    .appointments-container h2 {
+        margin-bottom: 15px; /* Espacio debajo del título */
+        color: #007bff; /* Color que coincida con el del calendario */
+        font-size: 1.5em; /* Tamaño de fuente del título */
+    }
+
+    .appointment-list {
+        max-height: 200px; /* Altura máxima antes de hacer scroll */
+        overflow-y: auto; /* Permite scroll si la lista es muy larga */
+    }
+
+    .appointment-item {
+        border-bottom: 1px solid #ddd; /* Borde inferior para separar citas */
+        padding: 10px 0; /* Padding arriba y abajo para cada cita */
+        display: flex;
+        justify-content: space-between; /* Separa los elementos de la cita */
+        align-items: center; /* Centra los elementos de la cita verticalmente */
+    }
+
+    .appointment-date {
+        font-weight: bold; /* Fecha en negrita */
+    }
+
+    .appointment-time {
+        color: #555; /* Color para la hora */
+        margin: 0 10px; /* Margen a los lados para la hora */
+    }
+
+    .appointment-details {
+        color: #555; /* Color para los detalles */
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row mt-4">
+        <div class="booking-container">
+    
+            <!-- Contenedor del Calendario -->
+            <div class="calendar-container">
+                <div id="calendarHeader">
+                    <div class="calendar-header">
+                        <div class="calendar-navigation">
+                            <button class="calendar-button" onclick="prevMonth()">&#9664;</button>
+                            <span id="monthName" style="font-size: 30px;">Diciembre</span> <span style="font-size: 30px;" id="year">2023</span>
+                            <button class="calendar-button"  onclick="nextMonth()">&#9654;</button>
+                        </div>
+                    </div>
+                    
+                </div>
+                <table class="calendar">
+                    <!-- El calendario se generará aquí -->
+                </table>
+            </div>
+        
+            <!-- Contenedor de Horarios -->
+            
+            <div class="time-slots-container">
+                <h2 class="mb-3" style="width: 100px;">Escoge un horario</h2>
+                <p></p>
+                <div class="time-slot">13:00</div>
+                <div class="time-slot">14:00</div>
+                <div class="time-slot">15:00</div>
+                <div class="time-slot">20:00</div>
+                <div class="time-slot">21:00</div>
+                <div class="time-slot">22:00</div>
+                <div class="time-slot">22:00</div>
+                <div class="time-slot">22:00</div>
+            </div>
+        
+        </div>
+    </div>
+    <div class="row mt-4">
+        <!-- Contenedor para citas agendadas -->
+        
+
+        <div class="appointments-container">
+            <h2>Citas Agendadas</h2>
+            <div class="appointment-list">
+                <!-- Aquí irán las citas individuales -->
+                <div class="appointment-item">
+                    <span class="appointment-date">Lunes, 1 de Diciembre, 2023</span>
+                    <span class="appointment-time">13:00 - 14:00</span>
+                    <span class="appointment-details">Prueba de manejo</span>
+                </div>
+                <!-- Repite .appointment-item para más citas -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts para la funcionalidad del calendario y selección de horarios -->
+<script>
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
+    let selectedDate = new Date();
+
+    // Función para generar el calendario
+    function generateCalendar(year, month) {
+        var calendar = document.querySelector('.calendar');
+        var monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        var daysOfWeek = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+        // Limpiar calendario existente
+        calendar.innerHTML = '';
+
+        // Crear cabecera de días de la semana
+        var headerRow = calendar.insertRow();
+        daysOfWeek.forEach(function(day) {
+            var th = document.createElement('th');
+            th.textContent = day;
+            headerRow.appendChild(th);
+        });
+
+        // Obtener el primer día del mes
+        var firstDay = new Date(year, month, 1);
+        var date = new Date(year, month, 1 - firstDay.getDay());
+
+        // Actualizar título del mes y año
+        document.getElementById('monthName').textContent = monthNames[month];
+        document.getElementById('year').textContent = year;
+
+        // Crear filas del calendario
+        for (var i = 0; i < 6; i++) {
+            var row = calendar.insertRow();
+            for (var j = 0; j < 7; j++) {
+                var cell = row.insertCell();
+                if (date.getMonth() === month) {
+                    cell.textContent = date.getDate();
+                    // Agregar clase 'selected' si es el día actual
+                     // Marcar el día actual con una clase diferente
+                    if (date.toDateString() === new Date().toDateString()) {
+                        cell.classList.add('today');
+                    }
+                    if (selectedDate.getDate() === date.getDate() &&
+                        selectedDate.getMonth() === month &&
+                        selectedDate.getFullYear() === year) {
+                        cell.classList.add('selected');
+                    }
+
+                }
+                date.setDate(date.getDate() + 1);
+            }
+        }
+
+        if (selectedDate.getFullYear() === year && selectedDate.getMonth() === month) {
+            let days = calendar.querySelectorAll('td');
+            days.forEach(day => {
+                if (day.textContent == selectedDate.getDate()) {
+                    day.classList.add('selected');
+                }
+            });
+        }
+    }
+
+    // Funciones para navegar entre meses
+    function prevMonth() {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        generateCalendar(currentYear, currentMonth);
+    }
+
+    function nextMonth() {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        generateCalendar(currentYear, currentMonth);
+    }
+
+
+    // Event listener para seleccionar un día usando delegación de eventos
+    document.querySelector('.calendar').addEventListener('click', function(e) {
+        if (e.target.tagName === 'TD' && e.target.textContent !== '') { // Asegúrate de que no sea un TD vacío
+            var selected = document.querySelector('td.selected');
+            selectedDate = new Date(currentYear, currentMonth, e.target.textContent);
+            if (selected) {
+                selected.classList.remove('selected');
+            }
+            e.target.classList.add('selected');
+            // Aquí podrías actualizar otros elementos de la interfaz con la fecha seleccionada
+        }
+    });
+
+    // Event listeners para la selección de horarios
+    let timeSlots = document.querySelectorAll('.time-slot');
+    timeSlots.forEach(function(slot) {
+        slot.addEventListener('click', function() {
+            timeSlots.forEach(slot => slot.classList.remove('active'));
+            slot.classList.add('active');
+        });
+    });
+
+    // Inicializar el calendario al cargar la página
+    generateCalendar(currentYear, currentMonth);
+</script>
+
+{% endblock %}
+
+
+
+

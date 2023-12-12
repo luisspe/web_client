@@ -9,7 +9,19 @@ import uuid
 from django.db import IntegrityError
 from django.conf import settings
 from django.http import JsonResponse
+import requests
+from uuid import uuid4
+import json
 
+#credentials
+from decouple import config
+
+# Configuración de la API
+api_url = config('API_URL')
+API_HEADER_AUTHORIZATION = config('API_KEY')
+headers = {
+    'x-api-key': API_HEADER_AUTHORIZATION
+}
 
 
 
@@ -110,12 +122,71 @@ def create_admin(request):
     return render(request, 'create_admin.html', {'form': form})
 
 
-@login_required
-def cliente_citas(request):
-    return render(request, 'cliente_citas.html')
+# Función para crear un evento o un cliente
+def create_event_or_client(request, client_info, event_info, headers, api_url):
+    """
+    Crea un cliente o un evento en la API.
+    Si el cliente ya existe, solo crea el evento.
+    Si el cliente no existe, primero crea el cliente y luego el evento.
+    """
+    client_id = None
+    response = requests.get(f"{api_url}clients/query/{client_info['email']}/", headers=headers)
+    if response.status_code == 200:
+        client_data = response.json()
+        client_id = client_data['client_id']
+        update_response = requests.put(f"{api_url}clients/{client_id}/", headers=headers, json=client_info)
+        if update_response.status_code != 200:
+            print("Error al actualizar la información del cliente")
+            print(update_response.json())  # Esto imprimirá la respuesta completa para que puedas ver qué salió mal
+
+    else:
+        if 'client_id' not in client_info:
+            client_id = str(uuid4())
+            client_info['client_id'] = client_id
+        response = requests.post(f"{api_url}clients/create/", headers=headers, json=client_info)
+        if response.status_code == 201:
+            #event_info["event_data"]['visit'] = "P1"
+            if 'client_id' not in event_info:
+                event_info['client_id'] = client_id
+            response = requests.post(f"{api_url}events/create/", headers=headers, json=event_info)
+            return client_id, "Evento creado exitosamente" if response.status_code == 201 or response.status_code == 200 else "Error al crear el evento"
+    event_info['client_id'] = client_id
+    response = requests.post(f"{api_url}events/create/", headers=headers, json=event_info)
+    return client_id, "Evento creado exitosamente" if response.status_code == 201 else "Error al crear el evento"
+
+
+# Funcion para buscar client por email y rellenar los campos del formulario automaticamente
+def fetch_client_by_email(request):
+    # Use the email of the logged-in user
+    user_email = request.user.email
+
+    # The API URL, ensure that this is the correct URL for your API
+    api_url = "https://lbvj22e1he.execute-api.us-east-1.amazonaws.com/dev/clients/query/"
+    
+    # Headers for the API request, add your required headers here
+    headers = {
+        'Content-Type': 'application/json',
+        'x-api-key': 'IUPDlxEc2i2xxCYpmmnGL2JmqhVRkQba1n9Tbl6B',
+    }
+
+    response = requests.get(f"{api_url}{user_email}/", headers=headers)
+    if response.status_code == 200:
+        client_data = response.json()
+        return JsonResponse(client_data)
+    else:
+        return JsonResponse({"error": "Cliente no encontrado"}, status=response.status_code)
+        
 
 @login_required
-def cliente_dashboard(request):
+def cliente_citas(request):
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    context = {
+        'notificaciones': notificaciones
+    }
+    return render(request, 'cliente_citas.html', context)
+
+@login_required
+def cliente_dashboard_documentos(request):
     documentos_usuario = Documento.objects.filter(usuario=request.user).order_by('-fecha_actualizacion')
     
     documentos_unicos = {}
@@ -153,7 +224,38 @@ def upload_file(request):
         documento = Documento(usuario=request.user, archivo=file, tipo_documento=tipo_documento)
         
         # Guardar el archivo
-        documento.save()
+        
+        #post a la api
+        client_response = fetch_client_by_email(request)
+        if client_response.status_code == 200:
+            client_data = client_response.content.decode('utf-8')  # Decode the JSON content
+            client_data = json.loads(client_data)  # Parse the JSON content to get the dictionary
+
+            # Extract client_id from the dictionary
+            client_id = client_data.get('client_id')
+
+            # Prepare the event data
+            event_data = {
+                
+                "client_id": client_id,
+                "event_data": {
+                    "concept": "Upload de documento",
+                },
+                "event_source": "web_application",
+                "event_type": "document_upload",
+            }
+
+            event_api_url = f"https://lbvj22e1he.execute-api.us-east-1.amazonaws.com/dev/events/create/"
+            headers = {'Content-Type': 'application/json', 'x-api-key': 'IUPDlxEc2i2xxCYpmmnGL2JmqhVRkQba1n9Tbl6B'}  # Add any required headers
+            response = requests.post(event_api_url, json=event_data, headers=headers)
+            if response.status_code == 200 or response.status_code == 201:
+                documento.save()
+                return JsonResponse({'status': 'Completado', 'id': documento.id})
+                
+            else:
+                return JsonResponse({'status': 'Error', 'message': 'Error al crear el evento.'}, status=response.status_code)
+        
+        
 
         return JsonResponse({'status': 'Completado', 'id': documento.id})
     
@@ -162,6 +264,9 @@ def upload_file(request):
 
 @login_required
 def notification_settings(request):
+    # Obtener las notificaciones del usuario
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    
     if request.method == 'POST':
         settings, created = UserNotificationSettings.objects.get_or_create(user=request.user)
         settings.receive_notifications = request.POST.get('receive_notifications') == 'on'
@@ -170,9 +275,11 @@ def notification_settings(request):
         settings.notify_appointment_reminder = request.POST.get('notify_appointment_reminder') == 'on'
         settings.save()
         return redirect('notification_settings')
-
+    context ={
+        'notificaciones': notificaciones,
+    }
     current_settings = UserNotificationSettings.objects.get_or_create(user=request.user)[0]
-    return render(request, 'notification_settings.html', {'settings': current_settings})
+    return render(request, 'notification_settings.html', {'settings': current_settings, 'notificaciones': notificaciones})
 
 
 
@@ -186,3 +293,13 @@ def eliminar_notificacion(request, id_notificacion):
         return JsonResponse({'status': 'success'})
     except Notificacion.DoesNotExist:
         return JsonResponse({'status': 'error'}, status=404)
+    
+
+
+@login_required
+def comentarios_y_sugerencias(request):
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    context = {
+        'notificaciones': notificaciones
+    }
+    return render(request, 'cliente_comentarios.html', context)
