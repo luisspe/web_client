@@ -91,9 +91,8 @@
                 </div>
                 <div class="overlay-panel overlay-right">
                     <h1>Bienvenido!</h1>
-                    <p>Ingresa tu información para crear una cuenta con nosotros</p>
-                    <p>Si aun no puedes ingresar, comunicate con tu asesor</p>
-                    <button type="button" class="ghost" id="signUp">Llamanos</button>
+                    <p>Si aun no puedes ingresar, comunicate con nosotros</p>
+					<a class='buttonn' href="tel:661111222p45">Llámanos</a>
                 </div>
             </div>
         </div>
@@ -149,6 +148,20 @@ a {
 }
 
 button {
+	border-radius: 20px;
+	border: 1px solid #71d6c2;
+	background-color: #71d6c2;
+	color: #FFFFFF;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 12px 45px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+    width: 300px;
+	transition: transform 80ms ease-in;
+    margin-top: 20px;
+}
+.buttonn{
 	border-radius: 20px;
 	border: 1px solid #71d6c2;
 	background-color: #71d6c2;
@@ -349,23 +362,47 @@ input:focus {
 	width: 40px;
 }
 
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .form-container {
+        position: static; /* Hace que el contenedor ocupe su lugar normal en el flujo del documento */
+        opacity: 1; /* Asegura que el contenedor sea totalmente visible */
+        width: 100%; /* Ajusta el ancho al 100% del contenedor padre */
+        transform: none; /* Elimina cualquier transformación */
+        transition: none; /* Elimina la transición */
+    }
+
+    .overlay-container {
+        display: none; /* Oculta el overlay en dispositivos móviles */
+    }
+	form{
+		background: 
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+        url('https://www.mazda.mx/siteassets/mazda-mx/mycos-2024/mazda-cx-30/dealers/mazda-mexico-cx-30-distribuidores-desktop-v3.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:100vw;
+	}
+}
+
+
+
+
 
 </style>
 <!-- Optional JavaScript; choose one of the two! -->
 <!-- Option 1: Bootstrap Bundle with Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const signUpButton = document.getElementById('signUp');
-const signInButton = document.getElementById('signIn');
-const container = document.getElementById('container');
-
-signUpButton.addEventListener('click', () => {
-	container.classList.add("right-panel-active");
-});
-
-signInButton.addEventListener('click', () => {
-	container.classList.remove("right-panel-active");
-});
+	
 </script>
 </body>
 </html>

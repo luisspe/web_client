@@ -30,5 +30,5 @@ def crear_notificacion_documento(documento):
         tipo_documento_legible = documento.get_tipo_documento_display()  # Obtener la versión legible del tipo de documento
         Notificacion.objects.create(
             usuario=documento.usuario,
-            mensaje=f"El estado de tu documento '{tipo_documento_legible}' ha cambiado a '{documento.estado}'."
+            mensaje=f"Tu {tipo_documento_legible} fue {documento.estado.lower()}."
         )

@@ -1,0 +1,72 @@
+{% extends "base_client.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card" style="background-color: #f0f2f5; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);">
+                <div class="card-body">
+                    <h2 class="card-title">Notificaciones</h2>
+                    <div class="notification-list">
+                        {% for notificacion in notificaciones_list%}
+                            <div class="notification-item">
+                                <div class="notification-text">
+                                    {{ notificacion.mensaje }}
+                                   
+                                </div>
+                                <div class="notification-time">{{ notificacion.fecha_creacion|timesince }}</div>
+                                {% if not notificacion.leida %}
+                                    <span class="notification-dot"></span>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <div class="notification-item">
+                                No hay notificaciones.
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<style>
+    .notification-list {
+        margin-top: 20px;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .notification-image {
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .notification-text {
+        flex-grow: 1;
+    }
+
+    .notification-time {
+        color: #999;
+        font-size: 0.8em;
+    }
+
+    .notification-dot {
+        height: 10px;
+        width: 10px;
+        background-color: #0095ff;
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 8px;
+    }
+</style>

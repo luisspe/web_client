@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-&*3jxhva3g^-^-xj5%#2o6b(syb1)30er#oyk@e!2i^14@@$06
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['v2rcxclientweb-env.eba-dtpva2fn.us-east-1.elasticbeanstalk.com', '127.0.0.1']
 
 
 # Application definition
@@ -83,8 +83,12 @@ WSGI_APPLICATION = 'v2rcx_client_web.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'clientwebdevelopment',
+        'USER': 'v2admin',
+        'PASSWORD': 'Pollitoloco01!',
+        'HOST': 'client-dev-database.c1dxw19wex9e.us-east-1.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
@@ -111,9 +115,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Mexico_City'
 
 USE_I18N = True
 
