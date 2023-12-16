@@ -284,9 +284,15 @@ def notification_settings(request):
 
 @login_required
 def notifications(request):
-    notificaciones = Notificacion.objects.filter(usuario=request.user).order_by('-fecha_creacion')
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    notificaciones_list = Notificacion.objects.filter(usuario=request.user).order_by('-fecha_creacion')
     
-    return render(request, 'notifications.html', {'notificaciones': notificaciones})
+    context ={
+        'notificaciones': notificaciones,
+        'notificaciones_list':notificaciones_list
+    }
+
+    return render(request, 'notifications.html', context)
 
 
 @require_POST

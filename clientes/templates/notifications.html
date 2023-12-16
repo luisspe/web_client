@@ -10,12 +10,13 @@
                 <div class="card-body">
                     <h2 class="card-title">Notificaciones</h2>
                     <div class="notification-list">
-                        {% for notificacion in notificaciones %}
+                        {% for notificacion in notificaciones_list%}
                             <div class="notification-item">
                                 <div class="notification-text">
                                     {{ notificacion.mensaje }}
-                                    <div class="notification-time">{{ notificacion.fecha_creacion|timesince }}</div>
+                                   
                                 </div>
+                                <div class="notification-time">{{ notificacion.fecha_creacion|timesince }}</div>
                                 {% if not notificacion.leida %}
                                     <span class="notification-dot"></span>
                                 {% endif %}
