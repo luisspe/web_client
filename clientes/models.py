@@ -53,6 +53,10 @@ class UserNotificationSettings(models.Model):
     notify_document_status = models.BooleanField(default=False)
     notify_appointment_confirmation = models.BooleanField(default=False)
     notify_appointment_reminder = models.BooleanField(default=False)
+    credit_response = models.BooleanField(default=True)
+    plates_status = models.BooleanField(default=True)
+    unit_details = models.BooleanField(default=True)
+    payments_confirmations = models.BooleanField(default=True)
 
     def __str__(self):
         return f'Notificaciones para {self.user.username}'
