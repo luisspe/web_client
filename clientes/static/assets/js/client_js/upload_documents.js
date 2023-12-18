@@ -8,6 +8,13 @@ function uploadFile(inputId, tipoDocumento) {
         return; // Detener la ejecución si no es un PDF
     }
 
+    // Verificar el tamaño del archivo (por ejemplo, 10 MB)
+    var maxFileSize = 10 * 1024 * 1024; // 10 MB en bytes
+    if (file.size > maxFileSize) {
+        alert('El archivo es demasiado grande. Por favor, sube un archivo de menos de 10 MB.');
+        return;
+    }
+
     var formData = new FormData();
     formData.append('file', file);
     formData.append('tipo_documento', tipoDocumento);

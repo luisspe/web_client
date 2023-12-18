@@ -240,6 +240,10 @@ def upload_file(request):
                 "client_id": client_id,
                 "event_data": {
                     "concept": "Upload de documento",
+                    "file_name": file.name,
+                    "document":tipo_documento,
+                    "file_type": file.content_type,
+                    "file_size": file.size, 
                 },
                 "event_source": "web_application",
                 "event_type": "document_upload",

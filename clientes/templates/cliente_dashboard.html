@@ -179,8 +179,71 @@
               </div>
             </div>
           </div>
-      </div>
+        </div>
         {% endif %}
+
+        {% if 'CURP' not in documentos_subidos and 'CURP' not in documentos_aprobados and 'CURP' not in documentos_rechazados %}
+        <div class="wrapper">
+            <div class="container">
+              <h3>Sube tu CURP</h3>
+              <div class="upload-container">
+                <div class="border-container">
+                  <div class="icons fa-2x">
+                    <i class="fas fa-file-image" data-fa-transform="shrink-3 down-2 left-6 rotate--45"></i>
+                    <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                    <i class="fas fa-file-pdf" data-fa-transform="shrink-3 down-2 right-6 rotate-45"></i>
+                  </div>
+                  
+                  <input type="file" id="file-upload-curp">
+                    <p>Arrastra los archivos, o busca en tu dispositivo. <br> <a style="color: #d53249;" href="#" onclick="uploadFile('file-upload-curp', 'CURP')">Subir</a></p>
+                </div>
+              </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if 'CURP' in documentos_subidos %}
+          <div class="wrapper">
+              <div class="container">
+                <div class="upload-container">
+                  <div class="border-container">
+                    <h3> Tu documento fue cargado <br> con exito <br> y esta siendo validado.</h3>
+                  </div>
+                </div>
+              </div>
+          </div>
+        {% endif %}
+        {% if 'CURP' in documentos_aprobados %}
+          <div class="wrapper">
+              <div class="container">
+                <div class="upload-container">
+                  <div class="border-container">
+                    <h3> Tu documento fue  <br>Aprobado</h3>
+                    <img style="width: 60px; height: 60px;" src="{% static 'assets/img/aprovado.png' %}" alt="">
+                  </div>
+                </div>
+              </div>
+          </div>
+        {% endif %}
+        {% if 'CURP' in documentos_rechazados %}
+        <div class="wrapper">
+          <div class="container">
+            <h3 style="color: #d53249;">Ups, no pudimos verificar tu CURP, carga de nuevo el documento</h3>
+            <div class="upload-container">
+              <div class="border-container">
+                <div class="icons fa-2x">
+                  <i class="fas fa-file-image" data-fa-transform="shrink-3 down-2 left-6 rotate--45"></i>
+                  <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                  <i class="fas fa-file-pdf" data-fa-transform="shrink-3 down-2 right-6 rotate-45"></i>
+                </div>
+                
+                <input type="file" id="file-upload-ine-reverso">
+                  <p>Arrastra los archivos, o busca en tu dispositivo. <br> <a style="color: #d53249;" href="#" onclick="uploadFile('file-upload-curp', 'CURP')">Subir</a></p>
+              </div>
+            </div>
+          </div>
+      </div>
+      {% endif %}
+
         {% if 'CONSTANCIA_FISCAL' not in documentos_subidos and 'CONSTANCIA_FISCAL' not in documentos_aprobados and 'CONSTANCIA_FISCAL' not in documentos_rechazados %}
         <div class="wrapper">
             <div class="container">
@@ -302,14 +365,4 @@
       </div>
       
     </div>
-    
-    
-
     {% endblock %}
-
-  
-
-
-
-
-</html>
