@@ -32,33 +32,40 @@
         </div>
     </div>
 </div>
-
-{% endblock %}
-
 <style>
+    /* Estilos generales */
     .notification-list {
         margin-top: 20px;
+        background-color: #F0F2F5;
+        border-radius: 8px;     
+        overflow: hidden;
     }
 
     .notification-item {
         display: flex;
         align-items: center;
-        padding: 10px 0;
+        padding: 16px;
         border-bottom: 1px solid #eee;
+        transition: background-color 0.3s ease;
     }
 
-    .notification-image {
-        border-radius: 50%;
-        margin-right: 10px;
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+
+    .notification-item:hover {
+        background-color: #f8f8f8;
     }
 
     .notification-text {
         flex-grow: 1;
+        font-weight: 500; /* Fuente un poco más gruesa para el texto */
     }
 
     .notification-time {
         color: #999;
         font-size: 0.8em;
+        margin-left: 12px;
     }
 
     .notification-dot {
@@ -69,4 +76,18 @@
         display: inline-block;
         margin-left: 8px;
     }
+
+    /* Estilos para notificaciones no leídas */
+    .notification-item:not(.leida) .notification-text {
+        color: #000; /* Texto más oscuro para notificaciones no leídas */
+    }
+
+    .notification-item:not(.leida) {
+        background-color: #edf2fa; /* Fondo diferente para destacar */
+    }
+
+    /* Añade una clase 'leida' a tus notificaciones leídas en tu template de Django */
 </style>
+
+{% endblock %}
+

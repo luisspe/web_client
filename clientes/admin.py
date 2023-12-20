@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Documento, UserNotificationSettings, Notificacion
+from .models import CustomUser, Documento, UserNotificationSettings, Notificacion, Appointment, AppointmentType
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -16,3 +16,5 @@ admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Documento)
 admin.site.register(UserNotificationSettings)
 admin.site.register(Notificacion)
+admin.site.register(Appointment)
+admin.site.register(AppointmentType)

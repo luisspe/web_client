@@ -3,17 +3,14 @@ from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+from django.utils import timezone
 
 class CustomUser(AbstractUser):
-    
     email = models.EmailField(('email address'), unique=True)  # Asegúrate de que el email sea único
     is_admin = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     nombre = models.CharField(max_length=100, unique=True)
-
         # Elimina el username de los campos requeridos
-
     def __str__(self):
         return self.email
 
@@ -26,8 +23,6 @@ class Documento(models.Model):
         ('COMPROBANTE_INGRESOS', 'Comprobante ingresos'),
         ('CURP', 'curp'),
 
-        
-        
     ]
 
     ESTADOS = [
@@ -35,17 +30,13 @@ class Documento(models.Model):
         ('APROBADO', 'Aprobado'),
         ('RECHAZADO', 'Rechazado'),
     ]
-
     archivo = models.FileField(upload_to='documentos/')
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tipo_documento = models.CharField(max_length=100, choices=TIPO_DOCUMENTO_CHOICES)
     estado = models.CharField(max_length=20, choices=ESTADOS, default="SUBIDO")
     fecha_actualizacion = models.DateTimeField(auto_now=True)
-
     def __str__(self) -> str:
         return f'{self.usuario} {self.tipo_documento} {self.estado}'
-    
-
 #NOTIFICACIONES DEL USUARIO
 class UserNotificationSettings(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -57,19 +48,36 @@ class UserNotificationSettings(models.Model):
     plates_status = models.BooleanField(default=True)
     unit_details = models.BooleanField(default=True)
     payments_confirmations = models.BooleanField(default=True)
-
     def __str__(self):
         return f'Notificaciones para {self.user.username}'
     
-
 class Notificacion(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     mensaje = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     leida = models.BooleanField(default=False)
-
     def __str__(self):
         return f"Notificación para {self.usuario.username}: {self.mensaje}"
     
+
+class AppointmentType(models.Model):
+    name = models.CharField(max_length=100)
+    duration = models.DurationField()
+
+    def __str__(self):
+        return self.name
+
+class Appointment(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    appointment_type = models.ForeignKey(AppointmentType, on_delete=models.CASCADE)
+    scheduled_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        # Asumimos una duración fija de 1 hora, ajusta según sea necesario
+        self.end_time = self.scheduled_time + timezone.timedelta(hours=1)
+        super(Appointment, self).save(*args, **kwargs)
+
+
 
 

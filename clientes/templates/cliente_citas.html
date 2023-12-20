@@ -235,21 +235,34 @@
             </div>
         
             <!-- Contenedor de Horarios -->
-            
-            <div class="time-slots-container">
-                <h2 class="mb-3" style="width: 100px;">Escoge un horario</h2>
-                <p></p>
-                <div class="time-slot">13:00</div>
-                <div class="time-slot">14:00</div>
-                <div class="time-slot">15:00</div>
-                <div class="time-slot">20:00</div>
-                <div class="time-slot">21:00</div>
-                <div class="time-slot">22:00</div>
-                <div class="time-slot">22:00</div>
-                <div class="time-slot">22:00</div>
-            </div>
+            <form id="bookingForm" method="POST" action="{% url 'book_appointment' %}">
+                {% csrf_token %}
+                <div class="time-slots-container">
+                    <h2 class="mb-3" style="width: 100px;">Escoge un horario</h2>
+                    <p></p>
+                    <div class="time-slot" data-time="10:00">10:00</div>
+                    <div class="time-slot" data-time="11:00">11:00</div>
+                    <div class="time-slot" data-time="12:00">12:00</div>
+                    <div class="time-slot" data-time="13:00">13:00</div>
+                    <div class="time-slot" data-time="14:00">14:00</div>
+                    <div class="time-slot" data-time="15:00">15:00</div>
+                    <div class="time-slot" data-time="16:00">16:00</div>
+                    <div class="time-slot" data-time="17:00">17:00</div>
+                    <div class="time-slot" data-time="18:00">18:00</div>
+                    <div class="time-slot" data-time="19:00">19:00</div>
+                </div>
+                <input type="hidden" name="appointment_type" value="default"> <!-- Asegúrate de establecer esto según tus tipos de citas -->
+                <input type="hidden" id="scheduledTime" name="scheduled_time">
+                <select name="appointment_type" id="appointmentTypeSelect">
+                    <option value="manejo">Prueba de manejo</option>
+                    <option value="contrato">Firma de documentos</option>
+                    <!-- Asegúrate de que los valores aquí coincidan con los nombres de tus AppointmentType en la base de datos -->
+                </select>
+                <button type="submit" class="btn btn-primary">Agendar Cita</button>
+            </form>
         
         </div>
+
     </div>
     <div class="row mt-4">
         <!-- Contenedor para citas agendadas -->
@@ -378,6 +391,33 @@
 
     // Inicializar el calendario al cargar la página
     generateCalendar(currentYear, currentMonth);
+
+    // Event listener para el formulario
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Obtiene la fecha y hora seleccionadas
+        var selectedTimeSlot = document.querySelector('.time-slot.active');
+        if (selectedTimeSlot && selectedDate) {
+            // Formatea la fecha y hora en el formato esperado por Django
+            var selectedDay = selectedDate.getDate();
+            var selectedMonth = selectedDate.getMonth() + 1; // getMonth() devuelve 0-11
+            var selectedYear = selectedDate.getFullYear();
+            var timeSlot = selectedTimeSlot.getAttribute('data-time'); // Asume un formato como '13:00'
+
+            // Construye la fecha y hora en el formato esperado por Django
+            var formattedDateTime = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${selectedDay.toString().padStart(2, '0')} ${timeSlot}`;
+            console.log(formattedDateTime);
+            // Asigna este valor al campo del formulario
+            document.getElementById('scheduledTime').value = formattedDateTime;
+
+            // Envía el formulario
+            this.submit();
+        } else {
+            alert('Por favor, selecciona una fecha y un horario para tu cita.');
+        }
+    });
+
 </script>
 
 {% endblock %}

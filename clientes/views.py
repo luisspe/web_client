@@ -1,18 +1,21 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.views.decorators.http import require_POST
 from .forms import ClienteRegistrationForm, ClienteLoginForm, AdminRegistrationForm, AdminLoginForm
-from .models import CustomUser, Documento,  UserNotificationSettings, Notificacion
-from django.core.exceptions import ValidationError
+from .models import Appointment, CustomUser, Documento,  UserNotificationSettings, Notificacion, AppointmentType
 import uuid
 from django.db import IntegrityError
-from django.conf import settings
 from django.http import JsonResponse
 import requests
 from uuid import uuid4
 import json
-
+#imports for appointments
+from django.views.decorators.http import require_http_methods
+from django.core.exceptions import ValidationError
+from django.utils.dateparse import parse_datetime
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
 #credentials
 from decouple import config
 
@@ -179,11 +182,45 @@ def fetch_client_by_email(request):
 
 @login_required
 def cliente_citas(request):
-    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    # Obtener citas programadas para el cliente
+    #scheduled_appointments = Appointment.objects.filter(usuario=request.user).order_by('scheduled_time')
     context = {
-        'notificaciones': notificaciones
+        
     }
     return render(request, 'cliente_citas.html', context)
+
+@require_http_methods(['POST'])
+def book_appointment(request):
+    # Recibir y parsear los datos de la cita
+    appointment_type_name = request.POST.get('appointment_type')
+    scheduled_time_str = request.POST.get('scheduled_time')
+    scheduled_time = parse_datetime(scheduled_time_str)
+    
+    if not scheduled_time:
+        return JsonResponse({'success': False, 'message': 'Invalid datetime format.'}, status=400)
+
+    # Obtener la instancia de AppointmentType por su nombre o código único
+    appointment_type = get_object_or_404(AppointmentType, name=appointment_type_name)
+
+    # Verificar disponibilidad
+    if is_time_slot_available(request.user, scheduled_time):
+        # Crear y guardar la nueva cita si está disponible
+        Appointment.objects.create(
+            usuario=request.user,
+            appointment_type=appointment_type,  # Usar la instancia de AppointmentType
+            scheduled_time=scheduled_time
+        )
+        return JsonResponse({'success': True, 'message': 'Appointment booked successfully.'})
+    else:
+        return JsonResponse({'success': False, 'message': 'Time slot is not available.'}, status=400)
+
+def is_time_slot_available(user, start_time):
+    end_time = start_time + timezone.timedelta(hours=1)
+    return not Appointment.objects.filter(
+        usuario=user,  # Actualizado de 'client' a 'usuario'
+        scheduled_time__lt=end_time,
+        end_time__gt=start_time
+    ).exists()
 
 @login_required
 def cliente_dashboard_documentos(request):

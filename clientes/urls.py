@@ -15,5 +15,6 @@ urlpatterns = [
     path('v2/settings/notifications', views.notification_settings, name='notification_settings'),
     path('eliminar-notificacion/<int:id_notificacion>', views.eliminar_notificacion, name='eliminar_notificacion'),
     path('v2/dashboard/comentarios', views.comentarios_y_sugerencias, name='comentarios_y_sugerencias'),
-    path('v2/notifications', views.notifications, name='notifications')
+    path('v2/notifications', views.notifications, name='notifications'),
+    path('book_appointment/', views.book_appointment, name='book_appointment'),
 ]
