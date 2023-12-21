@@ -1,4 +1,5 @@
 {% extends "base_client.html" %}
+
 {% load static %}
 
 {% block content %}
@@ -21,6 +22,9 @@
     }
 
     .calendar{
+        width: 100%;
+    }
+    .boton{
         width: 100%;
     }
 
@@ -102,6 +106,16 @@
             width: 100%;
         }
 
+        .form-group {
+            flex-direction: column;
+            align-items: stretch; /* Alinea los elementos a lo largo del eje cruzado */
+        }
+    
+        #appointmentTypeSelect, .btn-primary {
+            width: 100%; /* Ocupa el ancho completo en pantallas pequeñas */
+            margin-bottom: 10px; /* Espacio debajo de cada elemento */
+        }
+
         .calendar-container {
             width: 100%; /* Los contenedores toman el ancho completo en pantallas pequeñas */
             margin: 0; /* Eliminar el margen para maximizar el espacio */
@@ -111,9 +125,21 @@
         .time-slots-container{
             width: 100%;
         }
-
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px; /* Espacio debajo del grupo de formulario */
+            text-align: center;
+            align-content: center;
+            align-items: center;
+            justify-content: center;
+        }
         
-    
+        #appointmentTypeSelect {
+            width: auto; /* Permite que el select se ajuste al contenido */
+            margin-right: 10px; /* Espacio a la derecha del selector */
+        }
 
         .calendar-header {
             flex-direction: column; /* Apilar los elementos de la cabecera verticalmente */
@@ -238,8 +264,8 @@
             <form id="bookingForm" method="POST" action="{% url 'book_appointment' %}">
                 {% csrf_token %}
                 <div class="time-slots-container">
-                    <h2 class="mb-3" style="width: 100px;">Escoge un horario</h2>
-                    <p></p>
+                    
+                   
                     <div class="time-slot" data-time="10:00">10:00</div>
                     <div class="time-slot" data-time="11:00">11:00</div>
                     <div class="time-slot" data-time="12:00">12:00</div>
@@ -253,31 +279,37 @@
                 </div>
                 <input type="hidden" name="appointment_type" value="default"> <!-- Asegúrate de establecer esto según tus tipos de citas -->
                 <input type="hidden" id="scheduledTime" name="scheduled_time">
-                <select name="appointment_type" id="appointmentTypeSelect">
-                    <option value="manejo">Prueba de manejo</option>
-                    <option value="contrato">Firma de documentos</option>
-                    <!-- Asegúrate de que los valores aquí coincidan con los nombres de tus AppointmentType en la base de datos -->
-                </select>
-                <button type="submit" class="btn btn-primary">Agendar Cita</button>
+                <div class="form-group mt-4">
+                    <h6>Elige un concepto</h6>
+                    <select name="appointment_type" id="appointmentTypeSelect" class="form-control">
+                        <option value="Prueba de manejo">Prueba de manejo</option>
+                        <option value="contrato">Firma de documentos</option>
+                        <!-- Más opciones -->
+                    </select>
+                    <button type="submit" class="btn btn-primary mt-4 boton">Agendar Cita</button>
+                </div>
             </form>
         
-        </div>
-
-    </div>
-    <div class="row mt-4">
-        <!-- Contenedor para citas agendadas -->
+        </div> 
         
 
+    </div>
+    {% load i18n %}
+    <div class="row mt-4">
+        <!-- Contenedor para citas agendadas -->
         <div class="appointments-container">
             <h2>Citas Agendadas</h2>
             <div class="appointment-list">
-                <!-- Aquí irán las citas individuales -->
-                <div class="appointment-item">
-                    <span class="appointment-date">Lunes, 1 de Diciembre, 2023</span>
-                    <span class="appointment-time">13:00 - 14:00</span>
-                    <span class="appointment-details">Prueba de manejo</span>
-                </div>
-                <!-- Repite .appointment-item para más citas -->
+                <!-- Iterar sobre citas agendadas -->
+                {% for cita in citas_agendadas %}
+                    <div class="appointment-item">
+                        <span class="appointment-date">{{ cita.fecha }}</span>
+                        <span class="appointment-time">{{ cita.hora }}</span>
+                        <span class="appointment-details">{{ cita.tipo }}</span>
+                    </div>
+                {% empty %}
+                    <div>No tienes citas agendadas.</div>
+                {% endfor %}
             </div>
         </div>
     </div>

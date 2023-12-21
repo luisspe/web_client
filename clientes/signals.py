@@ -1,6 +1,6 @@
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
-from .models import Documento, Notificacion, UserNotificationSettings
+from .models import Documento, Notificacion, UserNotificationSettings, Appointment
 
 # Diccionario para almacenar el estado anterior de los documentos
 estado_anterior_documento = {}
@@ -32,3 +32,11 @@ def crear_notificacion_documento(documento):
             usuario=documento.usuario,
             mensaje=f"Tu {tipo_documento_legible} fue {documento.estado.lower()}."
         )
+
+@receiver(post_save, sender=Appointment)
+def crear_notificacion_cita(sender, instance, created, **kwargs):
+    if created:
+        user_notification_settings = UserNotificationSettings.objects.get(user=instance.usuario)
+        if user_notification_settings.receive_notifications and user_notification_settings.notify_appointment_confirmation:
+            mensaje = f"Tu cita para {instance.appointment_type.name} está agendada para {instance.scheduled_time.strftime('%d/%m/%Y a las %H:%M')}."
+            Notificacion.objects.create(usuario=instance.usuario, mensaje=mensaje)

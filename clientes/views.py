@@ -16,6 +16,8 @@ from django.core.exceptions import ValidationError
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from datetime import time, datetime, timedelta
+from django.contrib import messages
 #credentials
 from decouple import config
 
@@ -183,10 +185,19 @@ def fetch_client_by_email(request):
 @login_required
 def cliente_citas(request):
     # Obtener citas programadas para el cliente
-    #scheduled_appointments = Appointment.objects.filter(usuario=request.user).order_by('scheduled_time')
-    context = {
+    citas_agendadas = Appointment.objects.filter(usuario=request.user).order_by('scheduled_time')
+    notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    citas = [{
+            'fecha': cita.scheduled_time.strftime("%A, %d de %B, %Y"),
+            'hora': cita.scheduled_time.strftime("%H:%M - ") + (cita.scheduled_time + timedelta(hours=1)).strftime("%H:%M"),
+            'tipo': cita.appointment_type.name
+        } for cita in citas_agendadas]
         
+    context = {
+        'citas_agendadas': citas,
+        'notificaciones': notificaciones,
     }
+    
     return render(request, 'cliente_citas.html', context)
 
 @require_http_methods(['POST'])
@@ -199,28 +210,61 @@ def book_appointment(request):
     if not scheduled_time:
         return JsonResponse({'success': False, 'message': 'Invalid datetime format.'}, status=400)
 
-    # Obtener la instancia de AppointmentType por su nombre o código único
+    # Obtener conteo de citas
     appointment_type = get_object_or_404(AppointmentType, name=appointment_type_name)
 
     # Verificar disponibilidad
-    if is_time_slot_available(request.user, scheduled_time):
+    appointment_count = is_time_slot_available(request.user, scheduled_time)
         # Crear y guardar la nueva cita si está disponible
+    client_response = fetch_client_by_email(request)
+    if client_response.status_code == 200:
+        client_data = client_response.content.decode('utf-8')
+        client_data = json.loads(client_data)
+
+        #extract the client_id
+        client_id = client_data.get('client_id')
+        event_data = {
+             "client_id": client_id,
+                "event_data": {
+                    "concept": "appointment",
+                    "type":appointment_type.name,
+                },
+                "event_source": "web_application",
+                "event_type": "appointment_generation",
+        }
+        event_api_url = f"https://lbvj22e1he.execute-api.us-east-1.amazonaws.com/dev/events/create/"
+        headers = {'Content-Type': 'application/json', 'x-api-key': 'IUPDlxEc2i2xxCYpmmnGL2JmqhVRkQba1n9Tbl6B'}
+        response = requests.post(event_api_url, json=event_data, headers=headers)
+        
+             
+    if appointment_count:
         Appointment.objects.create(
             usuario=request.user,
             appointment_type=appointment_type,  # Usar la instancia de AppointmentType
             scheduled_time=scheduled_time
         )
-        return JsonResponse({'success': True, 'message': 'Appointment booked successfully.'})
+        messages.success(request, 'Cita agendada exitosamente.')
+        if response.status_code == 200 or response.status_code == 201:
+            print("evento creado")
+
     else:
-        return JsonResponse({'success': False, 'message': 'Time slot is not available.'}, status=400)
+        messages.error(request, 'Las citas para este horario están agotadas.')
+    return redirect('cliente_citas')
 
 def is_time_slot_available(user, start_time):
     end_time = start_time + timezone.timedelta(hours=1)
-    return not Appointment.objects.filter(
-        usuario=user,  # Actualizado de 'client' a 'usuario'
+    
+    # Filtrar citas que se superponen con el rango de tiempo seleccionado
+    overlapping_appointments = Appointment.objects.filter(
         scheduled_time__lt=end_time,
         end_time__gt=start_time
-    ).exists()
+    )
+    
+    # Cuenta las citas existentes en el rango de tiempo
+    appointment_count = overlapping_appointments.count()
+    return appointment_count < 5  # Permitir hasta 5 citas
+
+
 
 @login_required
 def cliente_dashboard_documentos(request):

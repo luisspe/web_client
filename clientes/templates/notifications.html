@@ -13,7 +13,7 @@
                         {% for notificacion in notificaciones_list%}
                             <div class="notification-item">
                                 <div class="notification-text">
-                                    {{ notificacion.mensaje }}
+                                    * {{ notificacion.mensaje }}
                                    
                                 </div>
                                 <div class="notification-time">{{ notificacion.fecha_creacion|timesince }}</div>
