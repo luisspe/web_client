@@ -185,14 +185,17 @@ def fetch_client_by_email(request):
 
 @login_required
 def cliente_citas(request):
-    # Obtener citas programadas para el cliente
-    citas_agendadas = Appointment.objects.filter(usuario=request.user).order_by('scheduled_time')
+    # Filtrar solo las citas futuras para el usuario y ordenarlas por tiempo programado
+    citas_futuras = Appointment.objects.filter(
+        usuario=request.user,
+        scheduled_time__gt=timezone.now()  # Comparar con la hora actual
+    ).order_by('scheduled_time')
     notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
     citas = [{
             'fecha': localtime(cita.scheduled_time).strftime("%A, %d de %B, %Y"),
             'hora': localtime(cita.scheduled_time).strftime("%H:%M - ") + localtime(cita.scheduled_time + timedelta(hours=1)).strftime("%H:%M"),
             'tipo': cita.appointment_type.name
-        } for cita in citas_agendadas]
+        } for cita in citas_futuras]
         
     context = {
         'citas_agendadas': citas,
@@ -211,6 +214,7 @@ def book_appointment(request):
 
      # Asigna la zona horaria a la fecha y hora
     scheduled_time = timezone.make_aware(scheduled_time_naive, timezone.get_current_timezone())
+    response = None
     
     if not scheduled_time:
         return JsonResponse({'success': False, 'message': 'Invalid datetime format.'}, status=400)
@@ -384,10 +388,16 @@ def notifications(request):
 
     return render(request, 'notifications.html', context)
 
+@login_required
+def eliminar_notificacion(request, notificacion_id):
+    if request.method == 'POST':  # Asegúrate de que este argumento coincida con el nombre en urls.py
+        notificacion = get_object_or_404(Notificacion, id=notificacion_id, usuario=request.user)
+        notificacion.delete()
+        return redirect('notifications')  # Reemplaza esto con el nombre real de tu vista
 
 @require_POST
 @login_required
-def eliminar_notificacion(request, id_notificacion):
+def marcar_leida_notificacion(request, id_notificacion):
     try:
         notificacion = Notificacion.objects.get(id=id_notificacion, usuario=request.user)
         notificacion.leida = True  # O notificacion.delete() si prefieres eliminarla
