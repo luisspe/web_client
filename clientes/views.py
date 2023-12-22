@@ -18,6 +18,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from datetime import time, datetime, timedelta
 from django.contrib import messages
+from django.utils.timezone import localtime
 #credentials
 from decouple import config
 
@@ -188,8 +189,8 @@ def cliente_citas(request):
     citas_agendadas = Appointment.objects.filter(usuario=request.user).order_by('scheduled_time')
     notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
     citas = [{
-            'fecha': cita.scheduled_time.strftime("%A, %d de %B, %Y"),
-            'hora': cita.scheduled_time.strftime("%H:%M - ") + (cita.scheduled_time + timedelta(hours=1)).strftime("%H:%M"),
+            'fecha': localtime(cita.scheduled_time).strftime("%A, %d de %B, %Y"),
+            'hora': localtime(cita.scheduled_time).strftime("%H:%M - ") + localtime(cita.scheduled_time + timedelta(hours=1)).strftime("%H:%M"),
             'tipo': cita.appointment_type.name
         } for cita in citas_agendadas]
         
@@ -205,7 +206,11 @@ def book_appointment(request):
     # Recibir y parsear los datos de la cita
     appointment_type_name = request.POST.get('appointment_type')
     scheduled_time_str = request.POST.get('scheduled_time')
-    scheduled_time = parse_datetime(scheduled_time_str)
+    scheduled_time_naive = parse_datetime(scheduled_time_str)
+    
+
+     # Asigna la zona horaria a la fecha y hora
+    scheduled_time = timezone.make_aware(scheduled_time_naive, timezone.get_current_timezone())
     
     if not scheduled_time:
         return JsonResponse({'success': False, 'message': 'Invalid datetime format.'}, status=400)

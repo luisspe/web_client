@@ -79,7 +79,7 @@ class Appointment(models.Model):
         super(Appointment, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"Cita para {self.usuario} el {self.scheduled_time}"
+        return f"Cita para {self.usuario}"
 
 
 
