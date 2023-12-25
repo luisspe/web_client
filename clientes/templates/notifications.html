@@ -10,16 +10,16 @@
                 <div class="card-body">
                     <h2 class="card-title">Notificaciones</h2>
                     <div class="notification-list">
-                        {% for notificacion in notificaciones_list%}
+                        {% for notificacion in notificaciones_list %}
                             <div class="notification-item">
                                 <div class="notification-text">
-                                    {{ notificacion.mensaje }}
-                                   
+                                    * {{ notificacion.mensaje }}
                                 </div>
                                 <div class="notification-time">{{ notificacion.fecha_creacion|timesince }}</div>
-                                {% if not notificacion.leida %}
-                                    <span class="notification-dot"></span>
-                                {% endif %}
+                                <form action="{% url 'eliminar_notificacion' notificacion.id %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="delete-notification">Eliminar</button>
+                                </form>
                             </div>
                         {% empty %}
                             <div class="notification-item">
@@ -32,41 +32,74 @@
         </div>
     </div>
 </div>
+<style>
+    .notification-list {
+    margin-top: 20px;
+    background-color: #F0F2F5;
+    border-radius: 8px;     
+    overflow: hidden;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Alinea los elementos a los extremos */
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s ease;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: #f8f8f8;
+}
+
+.notification-text {
+    flex-grow: 1;
+    font-weight: 500;
+}
+
+.notification-time {
+    color: #999;
+    font-size: 0.8em;
+    margin-right: 12px; /* Espacio antes del botón */
+}
+
+.delete-notification {
+    padding: 5px 10px; /* Más espacio en el botón */
+    background-color: #d9534f; /* Un rojo estándar para las acciones de eliminar */
+    color: white;
+    border: none;
+    border-radius: 4px; /* Bordes redondeados para el botón */
+    cursor: pointer; /* Cursor de mano al pasar el ratón por encima */
+    text-decoration: none; /* No subrayar */
+}
+
+.delete-notification:hover {
+    background-color: #c9302c; /* Un tono más oscuro al pasar el ratón */
+}
+
+.notification-dot {
+    height: 10px;
+    width: 10px;
+    background-color: #0095ff;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 8px;
+}
+
+/* Ajusta los estilos para notificaciones no leídas si es necesario */
+.notification-item:not(.leida) .notification-text {
+    color: #000;
+}
+
+.notification-item:not(.leida) {
+    background-color: #edf2fa;
+}
+</style>
 
 {% endblock %}
 
-<style>
-    .notification-list {
-        margin-top: 20px;
-    }
-
-    .notification-item {
-        display: flex;
-        align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .notification-image {
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-
-    .notification-text {
-        flex-grow: 1;
-    }
-
-    .notification-time {
-        color: #999;
-        font-size: 0.8em;
-    }
-
-    .notification-dot {
-        height: 10px;
-        width: 10px;
-        background-color: #0095ff;
-        border-radius: 50%;
-        display: inline-block;
-        margin-left: 8px;
-    }
-</style>

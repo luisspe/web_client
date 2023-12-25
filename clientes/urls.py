@@ -13,7 +13,9 @@ urlpatterns = [
     path('logout', views.logout_view, name='logout'),
     path('crear-admin/', views.create_admin, name='create_admin'),
     path('v2/settings/notifications', views.notification_settings, name='notification_settings'),
-    path('eliminar-notificacion/<int:id_notificacion>', views.eliminar_notificacion, name='eliminar_notificacion'),
+    path('eliminar-notificacion/<int:id_notificacion>', views.marcar_leida_notificacion, name='eliminar_notificacion'),
     path('v2/dashboard/comentarios', views.comentarios_y_sugerencias, name='comentarios_y_sugerencias'),
-    path('v2/notifications', views.notifications, name='notifications')
+    path('v2/notifications', views.notifications, name='notifications'),
+    path('book_appointment/', views.book_appointment, name='book_appointment'),
+   path('eliminar-notificacion/<int:notificacion_id>/', views.eliminar_notificacion, name='eliminar_notificacion'),
 ]

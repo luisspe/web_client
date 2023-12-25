@@ -1,18 +1,24 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.views.decorators.http import require_POST
 from .forms import ClienteRegistrationForm, ClienteLoginForm, AdminRegistrationForm, AdminLoginForm
-from .models import CustomUser, Documento,  UserNotificationSettings, Notificacion
-from django.core.exceptions import ValidationError
+from .models import Appointment, CustomUser, Documento,  UserNotificationSettings, Notificacion, AppointmentType
 import uuid
 from django.db import IntegrityError
-from django.conf import settings
 from django.http import JsonResponse
 import requests
 from uuid import uuid4
 import json
-
+#imports for appointments
+from django.views.decorators.http import require_http_methods
+from django.core.exceptions import ValidationError
+from django.utils.dateparse import parse_datetime
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from datetime import time, datetime, timedelta
+from django.contrib import messages
+from django.utils.timezone import localtime
 #credentials
 from decouple import config
 
@@ -179,11 +185,95 @@ def fetch_client_by_email(request):
 
 @login_required
 def cliente_citas(request):
+    # Filtrar solo las citas futuras para el usuario y ordenarlas por tiempo programado
+    citas_futuras = Appointment.objects.filter(
+        usuario=request.user,
+        scheduled_time__gt=timezone.now()  # Comparar con la hora actual
+    ).order_by('scheduled_time')
     notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False).order_by('-fecha_creacion')
+    citas = [{
+            'fecha': localtime(cita.scheduled_time).strftime("%A, %d de %B, %Y"),
+            'hora': localtime(cita.scheduled_time).strftime("%H:%M - ") + localtime(cita.scheduled_time + timedelta(hours=1)).strftime("%H:%M"),
+            'tipo': cita.appointment_type.name
+        } for cita in citas_futuras]
+        
     context = {
-        'notificaciones': notificaciones
+        'citas_agendadas': citas,
+        'notificaciones': notificaciones,
     }
+    
     return render(request, 'cliente_citas.html', context)
+
+@require_http_methods(['POST'])
+def book_appointment(request):
+    # Recibir y parsear los datos de la cita
+    appointment_type_name = request.POST.get('appointment_type')
+    scheduled_time_str = request.POST.get('scheduled_time')
+    scheduled_time_naive = parse_datetime(scheduled_time_str)
+    
+
+     # Asigna la zona horaria a la fecha y hora
+    scheduled_time = timezone.make_aware(scheduled_time_naive, timezone.get_current_timezone())
+    response = None
+    
+    if not scheduled_time:
+        return JsonResponse({'success': False, 'message': 'Invalid datetime format.'}, status=400)
+
+    # Obtener conteo de citas
+    appointment_type = get_object_or_404(AppointmentType, name=appointment_type_name)
+
+    # Verificar disponibilidad
+    appointment_count = is_time_slot_available(request.user, scheduled_time)
+        # Crear y guardar la nueva cita si está disponible
+    client_response = fetch_client_by_email(request)
+    if client_response.status_code == 200:
+        client_data = client_response.content.decode('utf-8')
+        client_data = json.loads(client_data)
+
+        #extract the client_id
+        client_id = client_data.get('client_id')
+        event_data = {
+             "client_id": client_id,
+                "event_data": {
+                    "concept": "appointment",
+                    "type":appointment_type.name,
+                },
+                "event_source": "web_application",
+                "event_type": "appointment_generation",
+        }
+        event_api_url = f"https://lbvj22e1he.execute-api.us-east-1.amazonaws.com/dev/events/create/"
+        headers = {'Content-Type': 'application/json', 'x-api-key': 'IUPDlxEc2i2xxCYpmmnGL2JmqhVRkQba1n9Tbl6B'}
+        response = requests.post(event_api_url, json=event_data, headers=headers)
+        
+             
+    if appointment_count:
+        Appointment.objects.create(
+            usuario=request.user,
+            appointment_type=appointment_type,  # Usar la instancia de AppointmentType
+            scheduled_time=scheduled_time
+        )
+        messages.success(request, 'Cita agendada exitosamente.')
+        if response.status_code == 200 or response.status_code == 201:
+            print("evento creado")
+
+    else:
+        messages.error(request, 'Las citas para este horario están agotadas.')
+    return redirect('cliente_citas')
+
+def is_time_slot_available(user, start_time):
+    end_time = start_time + timezone.timedelta(hours=1)
+    
+    # Filtrar citas que se superponen con el rango de tiempo seleccionado
+    overlapping_appointments = Appointment.objects.filter(
+        scheduled_time__lt=end_time,
+        end_time__gt=start_time
+    )
+    
+    # Cuenta las citas existentes en el rango de tiempo
+    appointment_count = overlapping_appointments.count()
+    return appointment_count < 5  # Permitir hasta 5 citas
+
+
 
 @login_required
 def cliente_dashboard_documentos(request):
@@ -298,10 +388,16 @@ def notifications(request):
 
     return render(request, 'notifications.html', context)
 
+@login_required
+def eliminar_notificacion(request, notificacion_id):
+    if request.method == 'POST':  # Asegúrate de que este argumento coincida con el nombre en urls.py
+        notificacion = get_object_or_404(Notificacion, id=notificacion_id, usuario=request.user)
+        notificacion.delete()
+        return redirect('notifications')  # Reemplaza esto con el nombre real de tu vista
 
 @require_POST
 @login_required
-def eliminar_notificacion(request, id_notificacion):
+def marcar_leida_notificacion(request, id_notificacion):
     try:
         notificacion = Notificacion.objects.get(id=id_notificacion, usuario=request.user)
         notificacion.leida = True  # O notificacion.delete() si prefieres eliminarla

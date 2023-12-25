@@ -123,7 +123,7 @@ LANGUAGE_CODE = 'es'
 TIME_ZONE = 'America/Mexico_City'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
 DROPBOX_APP_KEY = 'qk1s5jtyqblm57e'

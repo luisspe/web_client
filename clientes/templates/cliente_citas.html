@@ -1,217 +1,12 @@
 {% extends "base_client.html" %}
+{% load i18n %}
+{% load l10n %}
+
 {% load static %}
 
 {% block content %}
-<style>
-    .booking-container {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap; /* Permite que los elementos se ajusten en pantallas más pequeñas */
-        gap: 20px; /* Espacio entre los contenedores */
-        padding: 20px;
-    }
-    .calendar-container {
-        font-family: 'Arial', sans-serif;
-        max-height: 410px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        width: 50%;
-    }
-
-    .calendar{
-        width: 100%;
-    }
-
-    /* Encabezado del calendario */
-    .calendar-header {
-        background-color: #d53249;
-        color: white;
-        padding: 10px 15px;
-        width: 100%;
-        display: flex;
-        justify-content: center; /* Cambiado a 'center' para centrar los elementos horizontalmente */
-        align-items: center;
-    }
-
-    .calendar-button {
-        background: none;
-        border: none;
-        color: black;
-        font-size: 20px;
-        cursor: pointer;
-    }
-
-    /* Estilos para la cabecera (días de la semana) */
-    .calendar th {
-        background-color: #50a5dc;
-        color: white;
-        padding: 10px;
-        text-align: center;
-    }
-
-    
-
-    .calendar-navigation {
-        display: flex;
-        align-items: center;
-        gap: 10px; /* Espacio entre los elementos */
-    }
-
-    /* Estilos para los días del calendario */
-    .calendar td {
-        padding: 15px;
-        text-align: center;
-        border-bottom: 1px solid #ddd;
-        cursor: pointer;
-        transition: background-color 0.3s, color 0.3s;
-    }
-
-    /* Efecto hover para los días */
-    .calendar td:hover:not(.empty) {
-        background-color: #0E2059;
-        color: white;
-    }
-
-    /* Estilos para el día actual y seleccionado */
-    .today {
-        background-color: #abcdef;
-        color: white;
-    }
-
-    .selected {
-        background-color: #d53249;
-        color: white;
-    }
-
-    /* Estilos para celdas vacías (días fuera del mes actual) */
-    .empty {
-        background-color: #f8f9fa;
-        cursor: default;
-    }
-
-    /* Estilos responsivos para pantallas pequeñas */
-    @media (max-width: 768px) {
-        .booking-container {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .calendar{
-            width: 100%;
-        }
-
-        .calendar-container {
-            width: 100%; /* Los contenedores toman el ancho completo en pantallas pequeñas */
-            margin: 0; /* Eliminar el margen para maximizar el espacio */
-             /* Reducir el padding para ahorrar espacio */
-            box-shadow: none; 
-        }
-        .time-slots-container{
-            width: 100%;
-        }
-
-        
-    
-
-        .calendar-header {
-            flex-direction: column; /* Apilar los elementos de la cabecera verticalmente */
-            align-items: flex-start; /* Alineación al inicio para la flecha y el mes/año */
-        }
-
-        .calendar-button {
-            padding: 5px; /* Reducir el padding de los botones para ahorrar espacio */
-        }
-
-        .month-name, .year {
-            font-size: 15px; /* Reducir el tamaño de fuente para el nombre del mes y el año */
-            margin-bottom: 5px; /* Añadir un pequeño margen entre el mes/año y los botones */
-        }
-
-        .calendar th, .calendar td {
-            padding: 8px; /* Reducir el padding dentro de las celdas del calendario */
-        }
-
-        .time-slot {
-            font-size: 14px; /* Reducir el tamaño de fuente para los slots de tiempo */
-        }
-    }
 
 
-    .time-slots-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* Esto crea dos columnas de igual ancho */
-        gap: 10px; /* Espacio entre slots */
-        flex: none; /* Eliminar flex si lo tenías anteriormente */
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        min-width: 335px;
-        width: 40%; /* Puedes ajustar esto según sea necesario */
-    }
-    
-
-    .time-slot {
-        padding: 10px;
-        border: 1px solid #0E2059;
-        border-radius: 5px;
-        text-align: center;
-        cursor: pointer;
-        /* Ajustes opcionales para mejorar la apariencia */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .time-slot:hover, .time-slot.active {
-        background-color: #0E2059;
-        color: white;
-    }
-
-
-    .appointments-container {
-        margin-top: 20px; /* Añade espacio encima del contenedor de citas */
-        background: #fff; /* Fondo blanco para el contenedor */
-        padding: 20px; /* Padding para el espacio interno */
-        border-radius: 10px; /* Bordes redondeados */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera para el contenedor */
-        width: 100%; /* Ocupa el ancho disponible */
-    }
-
-    .appointments-container h2 {
-        margin-bottom: 15px; /* Espacio debajo del título */
-        color: #007bff; /* Color que coincida con el del calendario */
-        font-size: 1.5em; /* Tamaño de fuente del título */
-    }
-
-    .appointment-list {
-        max-height: 200px; /* Altura máxima antes de hacer scroll */
-        overflow-y: auto; /* Permite scroll si la lista es muy larga */
-    }
-
-    .appointment-item {
-        border-bottom: 1px solid #ddd; /* Borde inferior para separar citas */
-        padding: 10px 0; /* Padding arriba y abajo para cada cita */
-        display: flex;
-        justify-content: space-between; /* Separa los elementos de la cita */
-        align-items: center; /* Centra los elementos de la cita verticalmente */
-    }
-
-    .appointment-date {
-        font-weight: bold; /* Fecha en negrita */
-    }
-
-    .appointment-time {
-        color: #555; /* Color para la hora */
-        margin: 0 10px; /* Margen a los lados para la hora */
-    }
-
-    .appointment-details {
-        color: #555; /* Color para los detalles */
-    }
-</style>
 
 <div class="container-fluid py-4">
     <div class="row mt-4">
@@ -235,36 +30,56 @@
             </div>
         
             <!-- Contenedor de Horarios -->
-            
-            <div class="time-slots-container">
-                <h2 class="mb-3" style="width: 100px;">Escoge un horario</h2>
-                <p></p>
-                <div class="time-slot">13:00</div>
-                <div class="time-slot">14:00</div>
-                <div class="time-slot">15:00</div>
-                <div class="time-slot">20:00</div>
-                <div class="time-slot">21:00</div>
-                <div class="time-slot">22:00</div>
-                <div class="time-slot">22:00</div>
-                <div class="time-slot">22:00</div>
-            </div>
+            <form id="bookingForm" method="POST" action="{% url 'book_appointment' %}">
+                {% csrf_token %}
+                <div class="time-slots-container">
+                    
+                   
+                    <div class="time-slot" data-time="10:00">10:00</div>
+                    <div class="time-slot" data-time="11:00">11:00</div>
+                    <div class="time-slot" data-time="12:00">12:00</div>
+                    <div class="time-slot" data-time="13:00">13:00</div>
+                    <div class="time-slot" data-time="14:00">14:00</div>
+                    <div class="time-slot" data-time="15:00">15:00</div>
+                    <div class="time-slot" data-time="16:00">16:00</div>
+                    <div class="time-slot" data-time="17:00">17:00</div>
+                    <div class="time-slot" data-time="18:00">18:00</div>
+                    <div class="time-slot" data-time="19:00">19:00</div>
+                </div>
+                <input type="hidden" name="appointment_type" value="default"> <!-- Asegúrate de establecer esto según tus tipos de citas -->
+                <input type="hidden" id="scheduledTime" name="scheduled_time">
+                <div class="form-group mt-4">
+                    <h6>Elige un concepto</h6>
+                    <select name="appointment_type" id="appointmentTypeSelect" class="form-control">
+                        <option value="Prueba de manejo">Prueba de manejo</option>
+                        <option value="Firma de contrato">Firma de documentos</option>
+                        <option value="Entrega de vehiculo">Entrega de vehiculo</option>
+                        <!-- Más opciones -->
+                    </select>
+                    <button type="submit" class="btn btn-primary mt-4 boton">Agendar Cita</button>
+                </div>
+            </form>
         
-        </div>
-    </div>
-    <div class="row mt-4">
-        <!-- Contenedor para citas agendadas -->
+        </div> 
         
 
+    </div>
+    
+    <div class="row mt-4">
+        <!-- Contenedor para citas agendadas -->
         <div class="appointments-container">
             <h2>Citas Agendadas</h2>
             <div class="appointment-list">
-                <!-- Aquí irán las citas individuales -->
-                <div class="appointment-item">
-                    <span class="appointment-date">Lunes, 1 de Diciembre, 2023</span>
-                    <span class="appointment-time">13:00 - 14:00</span>
-                    <span class="appointment-details">Prueba de manejo</span>
-                </div>
-                <!-- Repite .appointment-item para más citas -->
+                <!-- Iterar sobre citas agendadas -->
+                {% for cita in citas_agendadas %}
+                    <div class="appointment-item">
+                        <span class="appointment-date">{{ cita.fecha }}</span>
+                        <span class="appointment-time">{{ cita.hora }}</span>
+                        <span class="appointment-details">{{ cita.tipo }}</span>
+                    </div>
+                {% empty %}
+                    <div>No tienes citas agendadas.</div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -378,6 +193,33 @@
 
     // Inicializar el calendario al cargar la página
     generateCalendar(currentYear, currentMonth);
+
+    // Event listener para el formulario
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Obtiene la fecha y hora seleccionadas
+        var selectedTimeSlot = document.querySelector('.time-slot.active');
+        if (selectedTimeSlot && selectedDate) {
+            // Formatea la fecha y hora en el formato esperado por Django
+            var selectedDay = selectedDate.getDate();
+            var selectedMonth = selectedDate.getMonth() + 1; // getMonth() devuelve 0-11
+            var selectedYear = selectedDate.getFullYear();
+            var timeSlot = selectedTimeSlot.getAttribute('data-time'); // Asume un formato como '13:00'
+
+            // Construye la fecha y hora en el formato esperado por Django
+            var formattedDateTime = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${selectedDay.toString().padStart(2, '0')} ${timeSlot}`;
+            console.log(formattedDateTime);
+            // Asigna este valor al campo del formulario
+            document.getElementById('scheduledTime').value = formattedDateTime;
+
+            // Envía el formulario
+            this.submit();
+        } else {
+            alert('Por favor, selecciona una fecha y un horario para tu cita.');
+        }
+    });
+
 </script>
 
 {% endblock %}
