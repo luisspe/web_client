@@ -6,19 +6,17 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
-class AdminLoginForm(AuthenticationForm):
-    email = forms.EmailField(widget=forms.TextInput(attrs={'autofocus': True}))
-    password = forms.CharField(strip=False, widget=forms.PasswordInput)
-
-    def clean(self):
-        email = self.cleaned_data.get('email')
-        password = self.cleaned_data.get('password')
-        
-        if email is not None and password:
-            self.user_cache = authenticate(self.request, email=email, password=password)
-            if self.user_cache is None or not self.user_cache.is_admin:
-                raise self.get_invalid_login_error()
-        return self.cleaned_data
+class AdminLoginForm(forms.Form):
+    email = forms.EmailField(widget=forms.TextInput(attrs={
+        'autofocus': True,
+        'class': 'login-input',
+        'placeholder': 'Correo electrónico'
+    }))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'login-input',
+        'placeholder': 'Contraseña'
+    }))
+    
 
 class ClienteRegistrationForm(forms.ModelForm):
     class Meta:
@@ -39,6 +37,8 @@ class AdminRegistrationForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_admin = True
+        user.is_active = True
+        user.is_staff = True
         user.username = self.generate_unique_username()  # Marcamos automáticamente al usuario como administrador
         if commit:
             user.save()

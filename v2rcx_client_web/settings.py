@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
-    'clientes.apps.ClientesConfig'
+    'clientes.apps.ClientesConfig',
+    'administradores',
     
 ]
 
@@ -57,7 +58,10 @@ ROOT_URLCONF = 'v2rcx_client_web.urls'
 # settings.py
 
 AUTH_USER_MODEL = 'clientes.CustomUser'
-
+AUTHENTICATION_BACKENDS = [
+    'administradores.backends.EmailAuthenticationBackend',  # Reemplaza 'myapp' con el nombre de tu aplicación
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 TEMPLATES = [
     {

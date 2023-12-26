@@ -12,7 +12,7 @@ class CustomUser(AbstractUser):
     nombre = models.CharField(max_length=100, unique=True)
         # Elimina el username de los campos requeridos
     def __str__(self):
-        return self.email
+         return self.email
 
 class Documento(models.Model):
     TIPO_DOCUMENTO_CHOICES = [

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.views.decorators.http import require_POST
 from .forms import ClienteRegistrationForm, ClienteLoginForm, AdminRegistrationForm, AdminLoginForm
@@ -30,18 +30,23 @@ headers = {
 }
 
 
-
-
-
-
 def admin_login(request):
     if request.method == 'POST':
-        form = AdminLoginForm(data=request.POST)
+        form = AdminLoginForm(request.POST)
         if form.is_valid():
-            login(request, form.get_user())
-            return redirect('admin_dashboard')  # o donde sea que deba redirigir después del login
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=email, password=password)
+            if user is not None and user.is_admin:
+                login(request, user)
+                return redirect('create_client')
+            else:
+                form.add_error(None, "Credenciales inválidas o el usuario no es administrador.")
+        else:
+            print("Errores del formulario:", form.errors)
     else:
         form = AdminLoginForm()
+
     return render(request, 'admin_login.html', {'form': form})
 
 
