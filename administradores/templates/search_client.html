@@ -1,0 +1,154 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% block content %}
+<div class="search-area">
+    <form method="get" action="{% url 'search_client' %}" class="search-form">
+        <input type="text" name="q" placeholder="Buscar cliente..." class="search-input">
+        <button type="submit" class="search-button">Buscar</button>
+    </form>
+</div>
+
+{% if clients %}
+<div class="table-responsive">
+    <table class="clients-table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+            <tr>
+                <td>{{ client.nombre }}</td>
+                <td>{{ client.email }}</td>
+                <td>
+                    <a href="{% url 'client_details' client.id %}" class="details-button">Ver Expediente</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No se encontraron clientes.</p>
+{% endif %}
+
+<style>
+/* Estilos Base */
+:root {
+    --color-primary: #0056b3;
+    --color-secondary: #007bff;
+    --color-text: #333;
+    --color-background: #f4f4f4;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --border-radius: 0.5rem;
+    --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --transition-speed: 0.3s;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    margin: 0;
+    padding: 0;
+}
+
+/* Search Form */
+.search-form {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.search-input {
+    flex-grow: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+}
+
+.search-button {
+    padding: 0.5rem 1rem;
+    margin-left: 0.5rem;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color var(--transition-speed);
+}
+
+.search-button:hover {
+    background-color: var(--color-secondary);
+}
+
+/* Table Styles */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.clients-table {
+    background-color: #fafafa; /* Un tono más claro que el fondo para la tabla */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Opcional: una sombra suave para dar profundidad */
+    border-radius: var(--border-radius); /* Redondeo de bordes consistente con el diseño general */
+    overflow: hidden; /* Asegura que el border-radius se aplique en todos los bordes de la tabla */
+}
+
+/* Estilos para el encabezado de la tabla */
+.clients-table thead {
+    background-color: var(--color-primary); /* Un color que contraste con el fondo de la tabla */
+}
+
+/* Estilos para las celdas de la tabla */
+.clients-table th,
+.clients-table td {
+    border-bottom: 1px solid #eaeaea; /* Un color de borde que sea visible pero sutil */
+}
+
+/* Estilo para la última fila de la tabla para quitar el borde inferior */
+.clients-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Opcional: Estilos para mejorar la visualización en dispositivos móviles */
+@media screen and (max-width: 600px) {
+    .clients-table {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+.details-button {
+    padding: 0.5rem 1rem;
+    background-color: var(--color-secondary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color var(--transition-speed);
+}
+
+.details-button:hover {
+    background-color: var(--color-primary);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-input,
+    .search-button {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+}
+
+</style>
+{% endblock %}

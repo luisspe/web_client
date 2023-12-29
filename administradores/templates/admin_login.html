@@ -2,13 +2,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login V²</title>
 </head>
 
 <body>
     <div class="parent clearfix">
         <div class="bg-illustration">
-          <img src="https://i.ibb.co/Pcg0Pk1/logo.png" alt="logo">
+          
           <div class="burger-btn">
             <span></span>
             <span></span>
@@ -18,21 +18,25 @@
         
         <div class="login">
           <div class="container">
-            <h1>Inicia sesión con<br />tu cuenta</h1>
+            <h1>Gestor de Clientes V²</h1>
+            <p>Ingresa tus credenciales para acceder al panel de control de vendedores y clientes.</p>
         
             <div class="login-form">
-                <form action="{% url 'admin_login' %}" method="post">
-                    {% csrf_token %}
-                    {{form.as_p}}
-                
+              <form action="{% url 'admin_login' %}" method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <p>
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                    </p>
+                {% endfor %}
 
-    
-                <div class="forget-pass">
-                  <a href="#">Olvidaste tu contraseña</a>
-                </div>
-    
                 <button type="submit">Login</button>
-              </form>
+                
+                <a href="#">Olvidaste tu contraseña</a>
+                
+            </form>
+            
             </div>
           </div>
         </div>
@@ -47,10 +51,10 @@
         -webkit-transition: 0.3s;
         -o-transition: 0.3s;
         transition: 0.3s;
-      }
+      }S
       
       body {
-        background-color: #fff;
+        background-color: #f7f7f7;
         font-family: Montserrat;
         overflow-x: hidden;
       }
@@ -100,7 +104,10 @@
         position: relative;
         height: 100vh;
         width: 1194px;
-        background: url("https://i.ibb.co/RhMZprS/jony-Image2-1.png") no-repeat center center scroll;
+       
+        background: 
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+        url('https://www.mazda.mx/siteassets/mazda-mx/mycos-2024/mazda2-hatchback/vlp/hero-signature/auto-mazda2-hatchback-rojo-ciudad-vlp-desktop-v1.jpg') no-repeat center center scroll;
         background-size: cover;
         float: left;
         -webkit-animation: bgslide 2.3s forwards;
@@ -157,9 +164,17 @@
       }
       .login .container h1 {
         margin-top: 100px;
-        font-size: 35px;
+        font-size: 55px;
         font-weight: bolder;
       }
+
+      .login .container p {
+          color: #333; /* Choose a color that fits your design */
+          font-size: 25px; /* Adjust as needed */
+          margin-top: 20px; /* Spacing between the header and paragraph */
+          margin-bottom: 10px; /* Spacing between the paragraph and form */
+      }
+
       .login .container .login-form {
         margin-top: 50px;
       }
@@ -167,6 +182,19 @@
         display: -ms-grid;
         display: grid;
       }
+
+      .login .container .login-form label {
+          display: block;
+          margin-bottom: 5px;
+          color: #000000; /* Assuming you want white text for labels */
+          font-size: 30px;
+          font-weight: bold;
+      }
+
+      .login .container .login-form p {
+          margin: 12.5px 0;
+      }
+
       .login .container .login-form form input {
         font-size: 16px;
         font-weight: normal;
@@ -176,13 +204,14 @@
         border: none;
         padding: 0 30px;
         border-radius: 10px;
+        width: calc(100% - 60px);
       }
       .login .container .login-form form button[type=submit] {
         background: -webkit-linear-gradient(110deg, #f794a4 0%, #fdd6bd 100%);
         background: -o-linear-gradient(110deg, #f794a4 0%, #fdd6bd 100%);
         background: linear-gradient(-20deg, #f794a4 0%, #fdd6bd 100%);
         border: none;
-        margin-top: 124px;
+        margin-top: 50px;
         margin-bottom: 20px;
         width: 241px;
         height: 58px;
@@ -302,7 +331,9 @@
         }
         .bg-illustration {
           float: none;
-          background: url("https://i.ibb.co/rwncw7s/bg-mobile.png") center center;
+          background: 
+            linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+            url('https://www.mazda.mx/siteassets/mazda-mx/mycos-2024/mazda2-hatchback/vlp/hero-signature/auto-mazda2-hatchback-rojo-ciudad-vlp-desktop-v1.jpg') center center;
           background-size: cover;
           -webkit-animation: slideIn 0.8s ease-in-out forwards;
                   animation: slideIn 0.8s ease-in-out forwards;
@@ -350,7 +381,7 @@
           float: none;
         }
         .login .container h1 {
-          font-size: 25px;
+          font-size: 55px;
           margin-top: 40px;
         }
         .login .container .login-form {
