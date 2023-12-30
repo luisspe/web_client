@@ -1,5 +1,5 @@
 from django import forms
-from clientes.models import CustomUser
+from clientes.models import CustomUser, Documento
 import uuid
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
@@ -38,4 +38,7 @@ class ClienteRegistrationForm(forms.ModelForm):
         model = CustomUser
         fields = ['nombre', 'email', 'phone_number']  # Cambiado de 'username' a 'nombre'
 
-    
+class DocumentoForm(forms.ModelForm):
+    class Meta:
+        model = Documento
+        fields = ['estado']

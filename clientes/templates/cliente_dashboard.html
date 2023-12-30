@@ -5,7 +5,7 @@
     
     <!-- End Navbar -->
     <div class="container-fluid py-4">
-      
+      <div id="spinner" class="spinner"></div>
       <div class="row mt-4">
         <div class="col-lg-1"></div>
         <div class="col-lg-10">
@@ -365,4 +365,28 @@
       </div>
       
     </div>
+    <script>
+    console.log('Ocultando spinner');
+      
+    </script>
+    <style>
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: #007bff;
+        animation: spin 1s ease infinite;
+        display: none; /* Asegúrate de que esta línea esté en tu CSS */
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    </style>
     {% endblock %}

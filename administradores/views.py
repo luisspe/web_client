@@ -1,3 +1,4 @@
+from django.forms import formset_factory
 from django.shortcuts import render
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import user_passes_test, login_required
@@ -6,7 +7,7 @@ from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
 from clientes.models import CustomUser, Documento
 import uuid
-
+from .forms import DocumentoForm
 # LOGINS Y CREACION DE CUENTAS
 
 
@@ -25,7 +26,7 @@ def admin_login(request):
 
             if user is not None and user.is_admin:
                 login(request, user)
-                return redirect("create_client")
+                return redirect("search_client")
             else:
                 form.add_error(
                     None, "Credenciales inválidas o el usuario no es administrador."
@@ -110,10 +111,26 @@ def search_client(request):
     clients = CustomUser.objects.filter(nombre__icontains=query) if query else []
     return render(request, 'search_client.html', {'clients': clients})
 
-def client_details(request, user_id):
-    client = get_object_or_404(CustomUser, pk=user_id)
-    documentos = Documento.objects.filter(usuario=client)
-    return render(request, 'client_details.html', {'client': client, 'documentos': documentos})
+def expediente_cliente(request, cliente_id):
+    documentos = Documento.objects.filter(usuario_id=cliente_id)
+    
+    if request.method == 'POST':
+        documento_id = request.POST.get('doc_id')
+        documento = get_object_or_404(Documento, pk=documento_id)
+        form = DocumentoForm(request.POST, instance=documento, prefix='doc_'+str(documento_id))
+        
+        if form.is_valid():
+            form.save()
+            return redirect('expediente_cliente', cliente_id=cliente_id)
+    else:
+        documentos_forms = [(documento, DocumentoForm(instance=documento, prefix='doc_'+str(documento.id)))
+                            for documento in documentos]
+    
+    context = {
+        'documentos_forms': documentos_forms,
+        'cliente_id': cliente_id,
+    }
+    return render(request, 'expediente_cliente.html', context)
 
 def base(request):
     return render(request, 'base_admin.html')
