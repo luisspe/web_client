@@ -1,237 +1,237 @@
-.booking-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap; /* Permite que los elementos se ajusten en pantallas más pequeñas */
-    gap: 20px; /* Espacio entre los contenedores */
-    padding: 20px;
-}
-.calendar-container {
-    font-family: 'Arial', sans-serif;
-    max-height: 410px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    width: 50%;
-}
-
-.calendar{
-    width: 100%;
-}
-.boton{
-    width: 100%;
-}
-
-/* Encabezado del calendario */
-.calendar-header {
-    background-color: #d53249;
-    color: white;
-    padding: 10px 15px;
-    width: 100%;
-    display: flex;
-    justify-content: center; /* Cambiado a 'center' para centrar los elementos horizontalmente */
-    align-items: center;
-}
-
-.calendar-button {
-    background: none;
-    border: none;
-    color: black;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-/* Estilos para la cabecera (días de la semana) */
-.calendar th {
-    background-color: #50a5dc;
-    color: white;
-    padding: 10px;
-    text-align: center;
-}
-
-
-
-.calendar-navigation {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Espacio entre los elementos */
-}
-
-/* Estilos para los días del calendario */
-.calendar td {
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-/* Efecto hover para los días */
-.calendar td:hover:not(.empty) {
-    background-color: #0E2059;
-    color: white;
-}
-
-/* Estilos para el día actual y seleccionado */
-.today {
-    background-color: #abcdef;
-    color: white;
-}
-
-.selected {
-    background-color: #d53249;
-    color: white;
-}
-
-/* Estilos para celdas vacías (días fuera del mes actual) */
-.empty {
-    background-color: #f8f9fa;
-    cursor: default;
-}
-
-/* Estilos responsivos para pantallas pequeñas */
-@media (max-width: 768px) {
     .booking-container {
-        flex-direction: column;
-        align-items: center;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap; /* Permite que los elementos se ajusten en pantallas más pequeñas */
+        gap: 20px; /* Espacio entre los contenedores */
+        padding: 20px;
+    }
+    .calendar-container {
+        font-family: 'Arial', sans-serif;
+        max-height: 410px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        width: 50%;
     }
 
     .calendar{
         width: 100%;
     }
-
-    .form-group {
-        flex-direction: column;
-        align-items: stretch; /* Alinea los elementos a lo largo del eje cruzado */
-    }
-
-    #appointmentTypeSelect, .btn-primary {
-        width: 100%; /* Ocupa el ancho completo en pantallas pequeñas */
-        margin-bottom: 10px; /* Espacio debajo de cada elemento */
-    }
-
-    .calendar-container {
-        width: 100%; /* Los contenedores toman el ancho completo en pantallas pequeñas */
-        margin: 0; /* Eliminar el margen para maximizar el espacio */
-         /* Reducir el padding para ahorrar espacio */
-        box-shadow: none; 
-    }
-    .time-slots-container{
+    .boton{
         width: 100%;
     }
-    .form-group {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px; /* Espacio debajo del grupo de formulario */
-        text-align: center;
-        align-content: center;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    #appointmentTypeSelect {
-        width: auto; /* Permite que el select se ajuste al contenido */
-        margin-right: 10px; /* Espacio a la derecha del selector */
-    }
 
+    /* Encabezado del calendario */
     .calendar-header {
-        flex-direction: column; /* Apilar los elementos de la cabecera verticalmente */
-        align-items: flex-start; /* Alineación al inicio para la flecha y el mes/año */
+        background-color: #d53249;
+        color: white;
+        padding: 10px 15px;
+        width: 100%;
+        display: flex;
+        justify-content: center; /* Cambiado a 'center' para centrar los elementos horizontalmente */
+        align-items: center;
     }
 
     .calendar-button {
-        padding: 5px; /* Reducir el padding de los botones para ahorrar espacio */
+        background: none;
+        border: none;
+        color: black;
+        font-size: 20px;
+        cursor: pointer;
     }
 
-    .month-name, .year {
-        font-size: 15px; /* Reducir el tamaño de fuente para el nombre del mes y el año */
-        margin-bottom: 5px; /* Añadir un pequeño margen entre el mes/año y los botones */
+    /* Estilos para la cabecera (días de la semana) */
+    .calendar th {
+        background-color: #50a5dc;
+        color: white;
+        padding: 10px;
+        text-align: center;
     }
 
-    .calendar th, .calendar td {
-        padding: 8px; /* Reducir el padding dentro de las celdas del calendario */
+    
+
+    .calendar-navigation {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Espacio entre los elementos */
     }
+
+    /* Estilos para los días del calendario */
+    .calendar td {
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Efecto hover para los días */
+    .calendar td:hover:not(.empty) {
+        background-color: #0E2059;
+        color: white;
+    }
+
+    /* Estilos para el día actual y seleccionado */
+    .today {
+        background-color: #abcdef;
+        color: white;
+    }
+
+    .selected {
+        background-color: #d53249;
+        color: white;
+    }
+
+    /* Estilos para celdas vacías (días fuera del mes actual) */
+    .empty {
+        background-color: #f8f9fa;
+        cursor: default;
+    }
+
+    /* Estilos responsivos para pantallas pequeñas */
+    @media (max-width: 768px) {
+        .booking-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .calendar{
+            width: 100%;
+        }
+
+        .form-group {
+            flex-direction: column;
+            align-items: stretch; /* Alinea los elementos a lo largo del eje cruzado */
+        }
+    
+        #appointmentTypeSelect, .btn-primary {
+            width: 100%; /* Ocupa el ancho completo en pantallas pequeñas */
+            margin-bottom: 10px; /* Espacio debajo de cada elemento */
+        }
+
+        .calendar-container {
+            width: 100%; /* Los contenedores toman el ancho completo en pantallas pequeñas */
+            margin: 0; /* Eliminar el margen para maximizar el espacio */
+             /* Reducir el padding para ahorrar espacio */
+            box-shadow: none; 
+        }
+        .time-slots-container{
+            width: 100%;
+        }
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px; /* Espacio debajo del grupo de formulario */
+            text-align: center;
+            align-content: center;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #appointmentTypeSelect {
+            width: auto; /* Permite que el select se ajuste al contenido */
+            margin-right: 10px; /* Espacio a la derecha del selector */
+        }
+
+        .calendar-header {
+            flex-direction: column; /* Apilar los elementos de la cabecera verticalmente */
+            align-items: flex-start; /* Alineación al inicio para la flecha y el mes/año */
+        }
+
+        .calendar-button {
+            padding: 5px; /* Reducir el padding de los botones para ahorrar espacio */
+        }
+
+        .month-name, .year {
+            font-size: 15px; /* Reducir el tamaño de fuente para el nombre del mes y el año */
+            margin-bottom: 5px; /* Añadir un pequeño margen entre el mes/año y los botones */
+        }
+
+        .calendar th, .calendar td {
+            padding: 8px; /* Reducir el padding dentro de las celdas del calendario */
+        }
+
+        .time-slot {
+            font-size: 14px; /* Reducir el tamaño de fuente para los slots de tiempo */
+        }
+    }
+
+
+    .time-slots-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Esto crea dos columnas de igual ancho */
+        gap: 10px; /* Espacio entre slots */
+        flex: none; /* Eliminar flex si lo tenías anteriormente */
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        min-width: 335px;
+        width: 40%; /* Puedes ajustar esto según sea necesario */
+    }
+    
 
     .time-slot {
-        font-size: 14px; /* Reducir el tamaño de fuente para los slots de tiempo */
+        padding: 10px;
+        border: 1px solid #0E2059;
+        border-radius: 5px;
+        text-align: center;
+        cursor: pointer;
+        /* Ajustes opcionales para mejorar la apariencia */
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
-}
+
+    .time-slot:hover, .time-slot.active {
+        background-color: #0E2059;
+        color: white;
+    }
 
 
-.time-slots-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Esto crea dos columnas de igual ancho */
-    gap: 10px; /* Espacio entre slots */
-    flex: none; /* Eliminar flex si lo tenías anteriormente */
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    min-width: 335px;
-    width: 40%; /* Puedes ajustar esto según sea necesario */
-}
+    .appointments-container {
+        margin-top: 20px; /* Añade espacio encima del contenedor de citas */
+        background: #fff; /* Fondo blanco para el contenedor */
+        padding: 20px; /* Padding para el espacio interno */
+        border-radius: 10px; /* Bordes redondeados */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera para el contenedor */
+        width: 100%; /* Ocupa el ancho disponible */
+    }
 
+    .appointments-container h2 {
+        margin-bottom: 15px; /* Espacio debajo del título */
+        color: #007bff; /* Color que coincida con el del calendario */
+        font-size: 1.5em; /* Tamaño de fuente del título */
+    }
 
-.time-slot {
-    padding: 10px;
-    border: 1px solid #0E2059;
-    border-radius: 5px;
-    text-align: center;
-    cursor: pointer;
-    /* Ajustes opcionales para mejorar la apariencia */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    .appointment-list {
+        max-height: 200px; /* Altura máxima antes de hacer scroll */
+        overflow-y: auto; /* Permite scroll si la lista es muy larga */
+    }
 
-.time-slot:hover, .time-slot.active {
-    background-color: #0E2059;
-    color: white;
-}
+    .appointment-item {
+        display: grid;
+        grid-template-columns: 2fr 1fr 2fr; 
+        gap: 10px;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+    }
 
+    .appointment-date {
+        font-weight: bold;
+        text-align: left;
+    }
 
-.appointments-container {
-    margin-top: 20px; /* Añade espacio encima del contenedor de citas */
-    background: #fff; /* Fondo blanco para el contenedor */
-    padding: 20px; /* Padding para el espacio interno */
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera para el contenedor */
-    width: 100%; /* Ocupa el ancho disponible */
-}
+    .appointment-time {
+        color: #555;
+        margin: 0 10px; 
+        text-align: center;
+    }
 
-.appointments-container h2 {
-    margin-bottom: 15px; /* Espacio debajo del título */
-    color: #007bff; /* Color que coincida con el del calendario */
-    font-size: 1.5em; /* Tamaño de fuente del título */
-}
-
-.appointment-list {
-    max-height: 200px; /* Altura máxima antes de hacer scroll */
-    overflow-y: auto; /* Permite scroll si la lista es muy larga */
-}
-
-.appointment-item {
-    display: grid;
-    grid-template-columns: 2fr 1fr 2fr; 
-    gap: 10px;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-}
-
-.appointment-date {
-    font-weight: bold;
-    text-align: left;
-}
-
-.appointment-time {
-    color: #555;
-    margin: 0 10px; 
-    text-align: center;
-}
-
-.appointment-details {
-    color: #555;
-    text-align: right;
-}
+    .appointment-details {
+        color: #555;
+        text-align: right;
+    }
