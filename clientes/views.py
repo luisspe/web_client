@@ -204,7 +204,7 @@ def book_appointment(request):
         return JsonResponse(
             {"success": False, "message": "Invalid datetime format."}, status=400
         )
-
+    end_time = scheduled_time + timezone.timedelta(hours=1)
     # Obtener conteo de citas
     appointment_type = get_object_or_404(AppointmentType, name=appointment_type_name)
 
@@ -221,10 +221,12 @@ def book_appointment(request):
         event_data = {
             "client_id": client_id,
             "event_data": {
-                "concept": "appointment",
+                "concept": "Generacion de cita",
                 "type": appointment_type.name,
+                "scheduled_start": scheduled_time.isoformat(),
+                "scheduled_end": end_time.isoformat(),
             },
-            "event_source": "web_application",
+            "event_source": "Portal cliente",
             "event_type": "appointment_generation",
         }
         event_api_url = (
@@ -316,10 +318,19 @@ def upload_file(request):
                 {"status": "Error", "message": "Por favor, sube un archivo PDF."},
                 status=400,
             )
+        documento_existente = Documento.objects.filter(
+            usuario=request.user, 
+            tipo_documento=tipo_documento, 
+            estado='RECHAZADO'
+        ).first()
+
+        if documento_existente:
+            documento_existente.activo = False
+            documento_existente.save()
 
         # Asociar el documento con el usuario
         documento = Documento(
-            usuario=request.user, archivo=file, tipo_documento=tipo_documento
+            usuario=request.user, archivo=file, tipo_documento=tipo_documento, activo=True
         )
 
         # Guardar el archivo
@@ -341,13 +352,13 @@ def upload_file(request):
             event_data = {
                 "client_id": client_id,
                 "event_data": {
-                    "concept": "Upload de documento",
+                    "concept": "Subida de documento",
                     "file_name": file.name,
                     "document": tipo_documento,
                     "file_type": file.content_type,
                     "file_size": file.size,
                 },
-                "event_source": "web_application",
+                "event_source": "Portal cliente",
                 "event_type": "document_upload",
             }
 

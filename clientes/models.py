@@ -38,6 +38,7 @@ class Documento(models.Model):
     tipo_documento = models.CharField(max_length=100, choices=TIPO_DOCUMENTO_CHOICES)
     estado = models.CharField(max_length=20, choices=ESTADOS, default="SUBIDO")
     fecha_actualizacion = models.DateTimeField(auto_now=True)
+    activo = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         return f"{self.usuario} {self.tipo_documento} {self.estado}"

@@ -2,9 +2,17 @@
 {% load static %}
 
 {% block content %}
+<div class="client-info-container">
+    <h2>Expediente del cliente</h2>
+    <p>Nombre: <strong>{{ client_info.name }}</strong></p>
+    <p>Número: <strong>{{ client_info.number }}</strong></p>
+    <p>Unidad de interés: <strong>{{ client_info.unidad_de_interes }}</strong></p>
+    <p>Vendedor asignado: <strong>{{ client_info.vendedor_asignado }}</strong></p>
+    <!-- Agregar más detalles según sea necesario -->
+</div>
 <div class="documentos-container">
     <div id="spinner" class="spinner"></div>
-    <h2 style="margin-bottom: 35px;">Expediente del Cliente</h2>
+    <h2>Documentos subidos</h2>
     <div class="table-responsive">
         <table class="documentos-table">
             <thead>
@@ -37,6 +45,45 @@
         </table>
     </div>
 </div>
+<div class="eventos-container">
+    <h2 class="section-heading">Eventos del Cliente</h2>
+    <div class="eventos-list">
+        {% for evento in eventos %}
+            <div class="evento-item">
+                <div class="evento-header" onclick="toggleEventoDetails(this)">
+                    <h6 class="evento-title" style="color: white;">{{ evento.event_type | title }}</h6>
+                    <span class="evento-icon">+</span>
+                </div>
+                <div class="evento-details" style="display: none;">
+                    <p class="evento-timestamp">Fecha del evento: <strong>{{ evento.timestamp}}</strong></p>
+                    <p class="evento-concept">Fuente del evento: <strong>{{ evento.event_source  }}</strong></p>
+                    <!-- Aquí comienza la lógica condicional para mostrar detalles adicionales -->
+                    {% if evento.tipo == 'appointment_generation' %}
+                        <p class="evento-concept">Concepto del evento: <strong>{{ evento.event_data.concept | title }}</strong></p>
+                        <p class="evento-detail">Tipo de cita: <strong>{{ evento.event_data.type | title }}</strong></p>
+                        <p class="evento-detail">Horario de la cita: Del <strong>{{ evento.event_data.scheduled_start }}</strong> al <strong>{{ evento.event_data.scheduled_end }}</strong></p>
+                        <!-- Añadir más detalles específicos para el tipo de evento de cita -->
+                    {% elif evento.tipo == 'document_upload' %}
+                        <p class="evento-concept">Concepto del evento: <strong>{{ evento.event_data.concept | title }}</strong></p>
+                        <p class="evento-detail">Tipo de documento: <strong>{{ evento.event_data.documento  }}</strong></p>
+                        <p class="evento-detail">Tamaño de Archivo: <strong>{{ evento.event_data.file_size }}</strong> Bytes</p>
+                        <!-- Añadir más detalles específicos para el tipo de evento de subida de documento -->
+                    {% elif evento.tipo == 'bitacora_venta_update' %}
+                        <p class="evento-concept">Nombre de la hoja: <strong>{{ evento.event_data.sheetName }}</strong></p>
+                        <p class="evento-concept">Campo Actualizado: <strong>{{ evento.event_data.column }}</strong></p>
+                        <p class="evento-concept">Nuevo valor: <strong>{{ evento.event_data.value }}</strong></p>
+                    {% else %}
+
+                    {% endif %}
+                    <!-- Aquí termina la lógica condicional -->
+                </div>
+            </div>
+        {% empty %}
+            <p>No hay eventos registrados para este cliente.</p>
+        {% endfor %}
+    </div>
+</div>
+<button id="scrollToTopButton" onclick="scrollToTop()" style="display: none;">↑ Subir</button>
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
     // Selecciona todos los formularios con la clase 'document-form'
@@ -50,15 +97,45 @@
             };
         });
     });
+
+    function toggleEventoDetails(header) {
+    const details = header.nextElementSibling;
+    const icon = header.querySelector('.evento-icon');
+    details.style.display = details.style.display === 'none' ? 'block' : 'none';
+    icon.textContent = icon.textContent === '+' ? '-' : '+';
+}
+function scrollToTop() {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+window.onload = function() {
+    window.onscroll = function() {
+        var scrollButton = document.getElementById('scrollToTopButton');
+        
+        if (document.body.scrollTop > 6 || document.documentElement.scrollTop > 6) {
+            scrollButton.style.display = 'block';
+        } else {
+            scrollButton.style.display = 'none';
+        }
+    };
+};
 </script>
 <style>
-    .documentos-container {
-    max-width: 1200px;
+    /* Estilos para la sección de documentos */
+.documentos-container {
+    max-width: 800px;
     margin: 0 auto;
-    padding:40px 20px;
+    padding: 40px 20px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    min-width: 70%;
+    
+}
+.documentos-container h2 {
+    border-bottom: 2px solid #0E2059;
+    padding-bottom: 25px;
+    margin-bottom: 40px;
 }
 
 .table-responsive {
@@ -68,8 +145,74 @@
 .documentos-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Asegura que la tabla no se expanda más allá del contenedor */
+     /* Asegura que la tabla no se expanda más allá del contenedor */
 }
+
+/* Estilos para la sección de eventos */
+.eventos-container {
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    min-width: 70%;
+}
+
+.section-heading {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    
+}
+
+.eventos-list {
+    list-style: none;
+    padding: 0;
+}
+
+.evento-item {
+    background-color: #ffffff;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.6s ease-in-out;
+}
+
+.evento-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #0E2059;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.evento-header:hover {
+    background-color: #003366;
+}
+
+.evento-icon {
+    font-size: 24px;
+}
+
+.evento-title {
+    margin: 0;
+    font-weight: normal;
+}
+
+.evento-details {
+    padding: 15px;
+    display: none;
+    border-top: 1px solid #eeeeee;
+}
+
+.evento-timestamp, .evento-concept {
+    margin: 5px 0;
+}
+
+/* Estilos generales para botones y formularios */
 button {
     padding: 8px 15px;
     background-color: #d53249;
@@ -85,67 +228,37 @@ button:hover {
     background-color: #004494;
 }
 
-/* Estilos para el botón dentro del formulario */
 form button[type="submit"] {
-    margin-top: 10px; /* Agrega espacio arriba del botón si es necesario */
-    width: 100%; /* Opcional: Hace que el botón ocupe todo el ancho del contenedor */
+    margin-top: 10px;
+    width: 100%;
 }
 
-/* Estilos para el select */
-select {
+select, input[type="text"], input[type="email"] {
     padding: 8px;
+    margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
     color: #333;
     background-color: white;
     cursor: pointer;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
 }
 
-/* Estilos para los inputs de los formularios */
-input[type="text"],
-input[type="email"],
-select {
-    width: calc(100% - 20px); /* 100% del ancho menos el padding */
-    padding: 8px 10px;
-    margin-bottom: 10px; /* Agrega espacio debajo de cada input */
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; /* Incluye el padding y border en el ancho total */
-}
-
-.documentos-table thead {
+/* Estilos para las tablas de documentos y detalles de eventos */
+.documentos-table thead, .evento-details-table thead {
     background-color: #d53249;
     color: white;
 }
 
-.documentos-table th,
-.documentos-table td {
+.documentos-table th, .documentos-table td, .evento-details-table th, .evento-details-table td {
     padding: 10px;
     text-align: left;
     border: 1px solid #ddd;
 }
 
-.estado-select {
-    padding: 5px;
-    margin-right: 10px;
-}
-
-.download-button, .update-button {
-    padding: 5px 10px;
-    margin-top: 5px;
-    background-color: #d53249;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.download-button:hover, .update-button:hover {
-    background-color: #0056b3;
-}
-
+/* Estilos para el spinner de carga */
 .spinner {
     border: 4px solid rgba(0, 0, 0, 0.1);
     width: 50px;
@@ -160,28 +273,64 @@ select {
     display: none;
 }
 
+.client-info-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    min-width: 70%;
+}
+
+.client-info-container h2 {
+    color: #0E2059; /* Un color que combine con el tema */
+    border-bottom: 2px solid #0E2059; /* Línea decorativa bajo el título */
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.client-info-container p {
+    font-size: 16px;
+    color: #333; /* Color oscuro para el texto */
+    margin: 10px 0; /* Espacio vertical entre cada parrafo */
+    padding-left: 10px; /* Espacio a la izquierda para alinear con el título */
+}
+
+/* Añadir estilos para etiquetas fuertes si se usan dentro de los párrafos */
+.client-info-container strong {
+    font-weight: bold;
+    color: #0E2059;
+}
+
+#scrollToTopButton {
+    position: fixed; /* Fijar el botón en la página */
+    bottom: 20px; /* Espacio desde la parte inferior */
+    right: 20px; /* Espacio desde la parte derecha */
+    padding: 10px 15px;
+    background-color: #0E2059; /* Color de fondo */
+    color: white; /* Color del texto */
+    border: none; /* Sin borde */
+    border-radius: 4px; /* Bordes redondeados */
+    font-size: 16px; /* Tamaño de la fuente */
+    cursor: pointer; /* Cursor en forma de mano */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Sombra para el botón */
+    z-index: 1000; /* Asegurarse de que esté sobre otros elementos */
+}
+
+#scrollToTopButton:hover {
+    background-color: #003366; /* Color al pasar el ratón */
+}
+
+/* Animación del spinner */
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-/* Responsive Design */
+/* Estilos responsivos para vistas más pequeñas */
 @media (max-width: 768px) {
-    .search-form {
-        flex-direction: column;
-    }
-
-    .search-input,
-    .search-button {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .search-button {
-        width: auto;
-    }
-
-    .documentos-table {
+    .documentos-table, .evento-details-table {
         font-size: 14px;
     }
 

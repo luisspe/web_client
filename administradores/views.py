@@ -8,6 +8,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from clientes.models import CustomUser, Documento
 import uuid
 from .forms import DocumentoForm
+import requests
+from dateutil import parser
+from django.utils import timezone
+
 # LOGINS Y CREACION DE CUENTAS
 
 
@@ -106,31 +110,146 @@ def create_client(request):
 
 
 # FUNCIONALIDAD DE DASHBOARD PARA VENDEDORES
-def search_client(request):
-    query = request.GET.get('q', '')
-    clients = CustomUser.objects.filter(nombre__icontains=query) if query else []
-    return render(request, 'search_client.html', {'clients': clients})
+# Función para obtener los datos del cliente usando el email del usuario logueado
 
+
+@user_passes_test(lambda u: u.is_staff)
+def search_client(request):
+    query = request.GET.get("q", "")
+    clients = CustomUser.objects.filter(nombre__icontains=query) if query else []
+    return render(request, "search_client.html", {"clients": clients})
+
+
+def fetch_client_by_email(email):
+    api_url = (
+        "https://lbvj22e1he.execute-api.us-east-1.amazonaws.com/dev/clients/query/"
+    )
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": "IUPDlxEc2i2xxCYpmmnGL2JmqhVRkQba1n9Tbl6B",
+    }
+    response = requests.get(f"{api_url}{email}/", headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+
+
+@user_passes_test(lambda u: u.is_staff)
 def expediente_cliente(request, cliente_id):
-    documentos = Documento.objects.filter(usuario_id=cliente_id)
-    
-    if request.method == 'POST':
-        documento_id = request.POST.get('doc_id')
-        documento = get_object_or_404(Documento, pk=documento_id)
-        form = DocumentoForm(request.POST, instance=documento, prefix='doc_'+str(documento_id))
-        
+    documentos_activos = Documento.objects.filter(usuario_id=cliente_id, activo=True)
+    cliente = get_object_or_404(CustomUser, pk=cliente_id)
+
+    if request.method == "POST":
+        documento_id = request.POST.get("doc_id")
+        documento = get_object_or_404(Documento, pk=documento_id, activo=True)
+        form = DocumentoForm(
+            request.POST, instance=documento, prefix="doc_" + str(documento_id)
+        )
+
         if form.is_valid():
             form.save()
-            return redirect('expediente_cliente', cliente_id=cliente_id)
-    else:
-        documentos_forms = [(documento, DocumentoForm(instance=documento, prefix='doc_'+str(documento.id)))
-                            for documento in documentos]
-    
-    context = {
-        'documentos_forms': documentos_forms,
-        'cliente_id': cliente_id,
+            return redirect("expediente_cliente", cliente_id=cliente_id)
+
+    documentos_forms = [
+        (
+            documento,
+            DocumentoForm(instance=documento, prefix="doc_" + str(documento.id)),
+        )
+        for documento in documentos_activos
+    ]
+
+    client_data = fetch_client_by_email(cliente.email)
+
+    tipo_evento_mapa = {
+        "document_upload": "Subida de Documento",
+        "appointment_generation": "Generación de Cita",
+        "bitacora_venta_update": "Actualización en bitacora de ventas",
+        # Agrega otros mapeos según sea necesario
     }
-    return render(request, 'expediente_cliente.html', context)
+
+    event_source_mapa = {
+        "Bitacora_de_ventas": "Bitacora de ventas",
+    }
+
+    campo_bitacora_mapa = {
+        "ESTATUS": "Estatus de crédito",
+    }
+    tipo_documento_mapa = {
+        "CONSTANCIA_FISCAL": "Constancia fiscal",
+        "CURP": "CURP",
+        "INE_FRENTE": "Frente de INE",
+        "INE_REVERSO": "Reverso de INE" , 
+    }
+
+    eventos = []
+    if client_data:
+        client_id = client_data.get("client_id")
+        events_api_url = f"https://lbvj22e1he.execute-api.us-east-1.amazonaws.com/dev/clients/{client_id}/events/"
+        client_info_url = f"https://lbvj22e1he.execute-api.us-east-1.amazonaws.com/dev/clients/{client_id}/"
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": "IUPDlxEc2i2xxCYpmmnGL2JmqhVRkQba1n9Tbl6B",
+        }
+        client_info_response = requests.get(client_info_url, headers=headers)
+        client_info = {}
+        if client_info_response.status_code == 200:
+            client_info = client_info_response.json()
+        events_response = requests.get(events_api_url, headers=headers)
+        if events_response.status_code == 200:
+            raw_eventos = events_response.json().get("events", [])
+            for evento in raw_eventos:
+                event_data = evento.get("event_data", {})
+                formatted_start = None
+                formatted_end = None
+                if "scheduled_start" in event_data:
+                    formatted_start = timezone.localtime(
+                        parser.parse(event_data["scheduled_start"])
+                    ).strftime("%Y-%m-%d %H:%M")
+                if "scheduled_end" in event_data:
+                    formatted_end = timezone.localtime(
+                        parser.parse(event_data["scheduled_end"])
+                    ).strftime("%Y-%m-%d %H:%M")
+
+                eventos.append(
+                    {
+                        "event_type": tipo_evento_mapa.get(
+                            evento["event_type"], evento["event_type"]
+                        ),
+                        "timestamp": timezone.localtime(
+                            parser.parse(evento["timestamp"])
+                        ).strftime("%Y-%m-%d %H:%M"),
+                        "event_data": {
+                            "concept": event_data.get("concept"),
+                            "type": event_data.get("type"),
+                            "scheduled_start": formatted_start,
+                            "scheduled_end": formatted_end,
+                            "documento": tipo_documento_mapa.get(event_data.get("document"), event_data.get("document")),
+                            "file_size": event_data.get("file_size"),
+                            "sheetName": event_data.get("sheetName"),
+                            
+                            "column": campo_bitacora_mapa.get(
+                                event_data.get("column"), event_data.get("column")
+                            ),
+                            "value": event_data.get("value"),
+                        },
+                        "tipo": evento["event_type"],
+                        "event_source": event_source_mapa.get(
+                            evento["event_source"], evento["event_source"]
+                        ),
+                    }
+                )
+
+    context = {
+        "documentos_forms": documentos_forms,
+        "cliente_id": cliente_id,
+        "eventos": eventos,
+        'client_info': client_info,
+    }
+
+    return render(request, "expediente_cliente.html", context)
+
 
 def base(request):
-    return render(request, 'base_admin.html')
+    return render(request, "base_admin.html")
+ 
